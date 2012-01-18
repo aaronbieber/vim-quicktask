@@ -402,7 +402,7 @@ function! s:TaskComplete()
 endfunction
 
 function! s:SaveOnFocusLost()
-	if &filetype == "todolist"
+	if &filetype == "quicktask"
 		:silent! w
 	endif
 endfunction

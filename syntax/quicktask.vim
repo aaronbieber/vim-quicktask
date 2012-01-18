@@ -119,7 +119,7 @@ hi def link todoImportant       Operator
 hi def link todoTimestamp       Number
 hi def link incompleteTask		Search
 
-let b:current_syntax = "todolist"
+let b:current_syntax = "quicktask"
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
