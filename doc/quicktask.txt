@@ -1,0 +1,192 @@
+*quicktask.txt*	Lightweight task management plugin.
+
+	      QUICKTASK, THE LIGHTWEIGHT TASK MANAGEMENT PLUGIN
+
+1. Introduction ............................... |quicktask-introduction|
+2. Getting Started ............................ |quicktask-getting-started|
+3. Keyboard Shortcuts ......................... |quicktask-keyboard-shortcuts|
+4. Abbreviations .............................. |quicktask-abbreviations|
+5. Organizing Tasks ........................... |quicktask-organizing-tasks|
+6. Known Issues ............................... |quicktask-known-issues|
+
+===============================================================================
+1. Introduction					*quicktask-introduction*
+
+Quicktask is inspired in no small part by Eric Talevich's "todolist" syntax 
+highlighting scheme. Though some of the concepts and syntax patterns are 
+borrowed from that work, Quicktask is a filetype plugin that provides 
+unique functionality for working with simple lists of tasks that aren't 
+found anywhere else in Vim.
+
+Quicktask is not org-mode, nor is it a fully-featured personal information 
+manager. You will get the most out of Quicktask if your work is broken into 
+distinct assignments that have relatively simple definitions.
+
+===============================================================================
+2. Getting Started				*quicktask-getting-started*
+
+The first thing you will want to do is create a new Quicktask file. Open a 
+fresh Vim instance and call the command QTInit (you would type :QTInit<CR>).  
+If you run this command in a Vim instance with a file open in the current 
+buffer, a new buffer will be split and the Quicktask file will be created 
+there.
+
+You will be greeted with a very barebones task list with two sections, 
+"current tasks" and "completed tasks," as well as a single "starter" task.
+
+The layout of a Quicktask file is straightforward:
+
+Sections or Projects					*quicktask-sections*
+		End in a colon and are expected to contain tasks. Example: >
+			CURRENT TASKS:
+<
+Tasks							*quicktask-tasks*
+		Begin with a hyphen followed by a space, and may have "notes" 
+		or other tasks nested beneath them. Example: >
+			CURRENT TASKS:
+			  - A task
+			    * A note
+			    - A second task
+<
+Notes							*quicktask-notes*
+		Begin with an asterisk and usually appear within tasks, though 
+		they are not required to.  See the example above, 
+		|quicktask-tasks|.
+
+The hierarchy of information is expressed through indentation and the 
+indentation has semantic meaning to Quicktask. For example, you can move tasks 
+up and down among their peers, expand and collapse tasks to hide or reveal all 
+of their sub-tasks, and so on.
+
+===============================================================================
+3. Keyboard Shortcuts				*quicktask-keyboard-shortcuts*
+
+Nearly all of Quicktask's functionality is exposed through keyboard shortcuts 
+(or "mappings" in Vim parlance). All Quicktask mappings begin with <Leader>t 
+which is short for "task."
+
+<Leader>to	Insert a new task below the current task (similar to how
+		typing "o" in Normal mode inserts on the next line). If your 
+		cursor is not somewhere within an existing task, this mapping 
+		will probably not work (see |quicktask-known-issues|).
+
+<Leader>tO	Insert a new task above the current task (similar to how
+		typing "O" in Normal mode inserts on the previous line). If 
+		your cursor is not somewhere within an existing task, this 
+		mapping will probably not work (see |quicktask-known-issues|).
+
+<Leader>ts	Add start or end time stamps to the current task (mnemonic:
+		"timestamp", "task start", or "time start"). A new note will 
+		be added to the current task with today's date and a timestamp 
+		reading "Start." If there is already a note with a start time, 
+		an end time will be added to it. If there is already a 
+		complete start and end item, a new one will be added. By 
+		pressing <Leader>ts repeatedly, you can log the start and stop 
+		progress of a task.
+
+<Leader>tu	Move the current task up (mnemonic: "task up"). Tasks can only
+		be moved up and down among sibling tasks, so they will not 
+		move between sections (projects).
+
+<Leader>td	Move the current task down (mnemonic: "task down"). Tasks can
+		only be moved up and down among sibling tasks, so they will 
+		not move between sections (projects).
+
+<Leader>tD	Mark a task as "done." This adds a new "note" line at the end
+		of the task with the "DONE" keyword and a timestamp. It is 
+		important to keep in mind that the "DONE" keyword has meaning 
+		to Quicktask.
+
+<Leader>ta	Show (unfold) active tasks only. This has the effect of 
+		closing all of the folds in your task list and only expanding
+		the ones that do not have a "DONE" keyword in them (and their 
+		parents). If an incomplete task has completed child tasks, 
+		only the completed child tasks will be folded. The goal is to 
+		instantly present a filtered view of active items that need 
+		attention.
+
+<Leader>ty	Show (unfold) tasks containing today's date. This mapping only 
+		works when you have used the Quicktask date stamp format for 
+		the date, as it is a pattern-based match. This would unfold 
+		items that were added OR completed today.
+
+<Leader>tfi	Find incomplete timestamps (mnemonic: "task find incomplete").
+		This mapping actually performs a search for progress lines 
+		(inserted with <Leader>ts) that have a start time but no end 
+		time (presumed to be "incomplete"), which may not result in a 
+		visible change to the buffer, though it WILL force search 
+		highlighting to be turned on (see |hlsearch|). You can then 
+		use "n" and "N" to navigate among the found lines.
+
+===============================================================================
+4. Abbreviations				*quicktask-abbreviations*
+
+Abbreviations in Vim are used to replace a string with another while entering 
+text. Quicktask uses Insert-mode abbreviations to provide an easy way to add 
+datestamps and timestamps to your task lists. The following abbreviations are 
+available (for information on how to use abbreviations, see |abbreviations| in 
+the Vim manual). All dates are inserted in the Quicktask standard datestamp 
+format, e.g.: >
+	[Wed 2012-01-18]
+<
+All abbreviations begin with the at ("@") symbol, which is remembered easily 
+through the mnemonic of entering a stamp "at" a particular time.
+
+@today		Inserts today's date.
+@tomorrow	Inserts tomorrow's date.
+@yesterday	Inserts yesterday's date.
+@nextweek	Inserts the date exactly seven days from today.
+@now		Inserts the current time, e.g. >
+			[13:45]
+<
+===============================================================================
+5. Organizing Tasks				*quicktask-organizing-tasks*
+
+The philosophy of Quicktask is to provide a simple and versatile feature set 
+that each user can apply in their own way. Although some of the formatting and 
+keywords cannot be changed, there are innumerble ways in which to build and 
+manage a list of tasks. This section briefly covers some of the core concepts 
+that I have found useful and that I hope you do, too.
+
+I like to keep a section of "current tasks" representing pending work. With 
+Quicktask, it's easy to add a new task to the list with <Leader>to and begin 
+working on it with <Leader>ts. When I have completed my work, or get pulled 
+into another task, I can press <Leader>ts to stop progress.
+
+As I complete tasks, I just press <Leader>tD to mark them as "DONE" and move 
+on to the next assignment. At the end of the day or week, I press <Leader>ta 
+to collapse all of the completed tasks and move them into "completed tasks." 
+Because I perform a lot of smaller tasks, I have created a "completed tasks" 
+section for each year, e.g. "COMPLETED TASKS (2011):", just to keep things 
+more organized.
+
+There is no reason not to create any sections or project groupings you can 
+imagine, including nested sections.
+
+===============================================================================
+6. Known Issues					*quicktask-known-issues*
+
+Quicktask is a labor of love and a side project. As such, there are some 
+problems, and I know about most of them. This is a short list of the issues I 
+know exist, but that haven't stopped me from using Quicktask for long enough 
+to actually fix them, which generally means that I think they're minor.
+
+If you want to take a stab at it, by all means, send me a pull request on 
+Github (http://github.com/aaronbieber/quicktask.git) or get in touch with me 
+directly via e-mail at aaron 'at' aaronbieber.com.
+
+1. Inserting new tasks only works if your cursor is located within a task.
+
+	Because Quicktask uses some regex magic to figure out what the indent 
+	level is and where to insert new task lines, it is lost without a 
+	"reference task," which in normal use is the task the cursor is 
+	located within (either on the task line itself or on any note line 
+	beneath it).
+
+	It would be nice if it could insert a task before or after any 
+	non-task and non-note line and indent and fold everything as any 
+	average user would expect.
+
+2. I was sure there were more. Stay tuned... Or submit an issue on Github.
+
+vim:tw=78:ts=8:ft=help:norl:
