@@ -1,20 +1,43 @@
+" quicktask.vim: A lightweight task management plugin.
+"
+" Author:	Aaron Bieber
+" Version:	1.0
+" Date:		10 January 2012
+"
+" See the documentation in doc/quicktask.txt
+
+" Compatibility option reset: {{{1
 let s:cpo_save = &cpo
 set cpo&vim
 
+" Set all buffer-local settings: {{{1
 setlocal comments=b:#,f:-,f:*
 setlocal formatoptions=qnwta
 setlocal spell
-
-" Folding
-setlocal foldmethod=expr
-setlocal foldexpr=TodoFoldLevel(v:lnum)
-setlocal fillchars="fold: "
-
 setlocal shiftwidth=2
 setlocal tabstop=2
+" Add the 'at' sign to the list of keyword characters so that our 
+" abbreviations may use it.
+setlocal iskeyword=@,@-@,48-57,_,192-255
 
-" GetTaskIndent():
-" 	With the cursor on a task line, return the indent level of that task.
+" Folding settings
+setlocal foldmethod=expr
+setlocal foldexpr=QTFoldLevel(v:lnum)
+setlocal fillchars="fold: "
+setlocal foldtext=QTFoldText()
+
+" Script settings
+let s:version = '1.0'
+
+" Global options, defaults
+if !exists("g:quicktask_autosave")
+	let g:quicktask_autosave = 0
+endif
+
+" ============================================================================
+" GetTaskIndent(): Return current indent level. {{{1
+"
+" With the cursor on a task line, return the indent level of that task.
 function! s:GetTaskIndent()
 	if match(getline(line('.')), '^\t*- ') > -1
 		" What is the indentation level of this task?
@@ -27,20 +50,22 @@ function! s:GetTaskIndent()
 	return -1
 endfunction
 
-" SearchToTaskStart():
-" 	Search backwards for a task line. This function moves the cursor.
-" 	If the cursor is already on a task line, do nothing.
+" ============================================================================
+" SearchToTaskStart(): Find the start of the current task. {{{1
+"
+" Search backwards for a task line. This function moves the cursor.
+" If the cursor is already on a task line, do nothing.
 function! s:SearchToTaskStart()
-	if match(getline(line('.')), '^\t*- ') == -1
-		execute "normal! ?^\t*- \<CR>"
-	endif
+	call search('^\t*- ', 'bcW')
 endfunction
 
-" SearchToTaskEnd():
-" 	Search forward for the end of the current task. If we do not start on a task 
-" 	line, we first search backwards for a task line. We then search forward for 
-" 	the first line that isn't a part of that task, which may be the next task, 
-" 	the next section, or the end of the file.
+" ============================================================================
+" SearchToTaskEnd(): Find the end of the current task. {{{1
+"
+" Search forward for the end of the current task. If we do not start on a task 
+" line, we first search backwards for a task line. We then search forward for 
+" the first line that isn't a part of that task, which may be the next task, 
+" the next section, or the end of the file.
 function! s:SearchToTaskEnd()
 	" If we are not on a task line
 	if match(getline(line('.')), '^\t*- ') == -1
@@ -55,26 +80,19 @@ function! s:SearchToTaskEnd()
 		" Search downward, looking for either the end of the task block or
 		" start/end notes and record them. Begin on the line immediately
 		" following the task line.
-		"let current_line = line('.')+1
-		"let indent = indent + 1
-		"let matched = 0
-		"while current_line <= line('$')
-		"	" If we no longer at the correct indent level
-		"	if match(getline(current_line), '\v^\s{'.indent.'}') == -1
-		"		" We reached the next task or section
-		"		break
-		"	endif
 
-		"	let current_line = current_line + 1
-		"endwhile
+		let task_end_line = search('^\t\{0,'.indent.'}[^\t]', 'W')
 
-		"call cursor(current_line-1, 1)
-		execute "normal! /\\v^\t\{0,".indent."}[^\t]/-1\<CR>"
+		" Move the cursor to the line immediately prior, which should be the 
+		" last line of the task we are looking for.
+		call cursor(task_end_line-1,0)
 	endif
 endfunction
 
-" AddTaskAbove():
-" 	Add a task above the current task, at the current task's level.
+" ============================================================================
+" AddTaskAbove(): Add a task above the current task. {{{1
+"
+" Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
 	call s:SearchToTaskStart()
 	let indent = s:GetTaskIndent()
@@ -94,8 +112,10 @@ function! s:AddTaskAbove()
 	endif
 endfunction
 
-" AddTaskBelow():
-" 	Add a task below the current task, at the current task's level.
+" ============================================================================
+" AddTaskBelow(): Add a task below the current task. {{{1
+" 
+" Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
 	" Find current task
 	call s:SearchToTaskStart()
@@ -119,8 +139,10 @@ function! s:AddTaskBelow()
 	endif
 endfunction
 
-" MoveTaskDown():
-" 	Move the current task below the following task.
+" ============================================================================
+" MoveTaskDown(): Move the current task down. {{{1
+"
+" Move the current task below the following task.
 function! s:MoveTaskDown()
 	call s:SearchToTaskStart()
 	let task_start = line('.')
@@ -132,7 +154,7 @@ function! s:MoveTaskDown()
 	" Pull the contents of the task into a list of lines
 	let task_text = getline(task_start, task_end)
 	" Delete the task from the buffer
-	execute task_start.",".task_end."d"
+	execute "silent! ".task_start.",".task_end."d"
 
 	call s:SearchToTaskEnd()
 	let insert_line = line('.')
@@ -140,8 +162,10 @@ function! s:MoveTaskDown()
 	call cursor(insert_line+1, 0)
 endfunction
 
-" MoveTaskUp():
-" 	Move the current task up above the preceding task.
+" ============================================================================
+" MoveTaskUp(): Move the current task up. {{{1
+"
+" Move the current task up above the preceding task.
 function! s:MoveTaskUp()
 	call s:SearchToTaskStart()
 	let task_start = line('.')
@@ -160,8 +184,11 @@ function! s:MoveTaskUp()
 	endif
 endfunction
 
-" AddSnipToTask():
-" 	Add a new snip (external note) to a task.
+" ============================================================================
+" AddSnipToTask(): Add a new snip to a task as a note. {{{1
+"
+" Add a new snip (external note) to a task. This will be overhauled in 2.0 
+" when snips are in external files.
 function! s:AddSnipToTask()
 	" If we are not on a task line right now, we need to search up for one.
 	call s:SearchToTaskStart()
@@ -220,6 +247,11 @@ function! s:AddSnipToTask()
 	startinsert!
 endfunction
 
+" ============================================================================
+" JumpToSnip(): Jump from a snip marker to the snip and back. {{{1
+"
+" Jump from a snip's GUID to the snip itself or back to the GUID marker. This 
+" will be deprecated when snips become external file references.
 function! s:JumpToSnip()
 	if match(getline('.'), '\v\[(Snip |-|\+)[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]') > -1
 		let snip_parts = matchlist(getline('.'), '\v\[(Snip |-|\+)([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\]')
@@ -238,10 +270,12 @@ function! s:JumpToSnip()
 	endif
 endfunction
 
-" AddNextTimeToTask():
-" 	Add the next timestamp to a task. If the task has no timestamps yet,
-" 	add a starting time note. If it has a start with no end, add the end.
-" 	If it has complete start and end notes, add a new start note.
+" ============================================================================
+" AddNextTimeToTask(): Add the next logical timestamp to a task. {{{1
+"
+" Add the next timestamp to a task. If the task has no timestamps yet,
+" add a starting time note. If it has a start with no end, add the end.
+" If it has complete start and end notes, add a new start note.
 function! s:AddNextTimeToTask()
 	" If we are not on a task line right now, we need to search up for one.
 	call s:SearchToTaskStart()
@@ -293,6 +327,10 @@ function! s:AddNextTimeToTask()
 	endwhile
 endfunction
 
+" ============================================================================
+" AddStartTimeToTask(): Add a new start time to a task. {{{1
+"
+" Called by AddNextTimeToTask() to create a new start time note.
 function! s:AddStartTimeToTask(start)
 	" Place the cursor at the given start line.
 	call cursor(a:start, 0)
@@ -311,6 +349,11 @@ function! s:AddStartTimeToTask(start)
 	endif
 endfunction
 
+" ============================================================================
+" AddEndTimeToTask(): Add the end time to an existing start time. {{{1
+"
+" Called by AddNextTimeToTask() to append an end time to an existing start 
+" time note.
 function! s:AddEndTimeToTask(start)
 	" Place the cursor at the given start line.
 	call cursor(a:start, 0)
@@ -324,34 +367,9 @@ function! s:AddEndTimeToTask(start)
 	exe "normal! A, end ".now."\<Esc>"
 endfunction
 
-function! s:SetCurrentTask()
-	" Store the current cursor location.
-	let cursorpos = getpos('.')
-
-	" Remove any existing task markers.
-	exe "%s/- >> /- /g"
-
-	" Restore the cursor position (this is important).
-	call cursor(cursorpos[1:])
-
-	" Find the task line. Are we on it right now? If not, search backwards.
-	if match(getline(line('.')), '^\t*- ') == -1
-		exe "normal! ?^\t*- \<CR>"
-	endif
-
-	" Start at the beginning of the line, anyway.
-	normal! |
-	" See if this is the current task already.
-	if search('>>', 'n', line('.')) > 0
-		" Delete the marker
-		exe "normal! |/>>\<CR>dW"
-	else
-		" Create a new marker
-		exe "normal! |/-\<CR>a >>\<Esc>"
-	endif
-endfunction
-
-" TaskComplete()
+" ============================================================================
+" TaskComplete(): Mark a task as complete (DONE). {{{1
+"
 " Mark a task as complete by placing a note at the very end of the task 
 " containing the keyword DONE followed by the current timestamp.
 function! s:TaskComplete()
@@ -401,13 +419,55 @@ function! s:TaskComplete()
 	let @a = old_a
 endfunction
 
+" ============================================================================
+" SaveOnFocusLost(): Save the current file silently. {{{1
+"
+" This will be called by an autocommand to save the current task list file 
+" when focus is lost.
 function! s:SaveOnFocusLost()
 	if &filetype == "quicktask"
 		:silent! w
 	endif
 endfunction
 
-function! TodoFoldLevel(linenum)
+" ============================================================================
+" GetDatestamp(): Get a Quicktask-formatted datestamp. {{{1
+" 
+" Datestamps are used throughout Quicktask both for user convenience of 
+" tracking their tasks in the continuum of the universe immemorial and also to 
+" locate current tasks. GetDatestamp() returns a Quicktask-formatted 
+" datestamp for the requested time relative to 'now.'
+function! s:GetDatestamp(coordinate)
+	if a:coordinate == 'today'
+		return '['.strftime('%a %Y-%m-%d').']'
+	elseif a:coordinate == 'tomorrow'
+		return '['.strftime('%a %Y-%m-%d', localtime()+86400).']'
+	elseif a:coordinate == 'yesterday'
+		return '['.strftime('%a %Y-%m-%d', localtime()-86400).']'
+	elseif a:coordinate == 'nextweek'
+		return '['.strftime('%a %Y-%m-%d', localtime()+604800).']'
+	endif
+
+	" Always return something ("today" in this case).
+	return '['.strftime('%a %Y-%m-%d').']'
+endfunction
+
+" ============================================================================
+" GetTimestamp(): Get a Quicktask-formatted timestamp. {{{1
+"
+" Timestamps are used for the start and end times added to tasks and by the 
+" abbreviation system. GetTimestamp() returns a Quicktask-formatted timestamp 
+" for the current time.
+function! s:GetTimestamp()
+	return '['.strftime('%H:%M').']'
+endfunction
+
+" ============================================================================
+" QTFoldLevel(): Returns the fold level of the current line. {{{1
+"
+" This is used by the Vim folding system to fold tasks based on their depth 
+" and relationship to one another.
+function! QTFoldLevel(linenum)
 	let pre_indent = indent(a:linenum-1) / &tabstop
 	let cur_indent = indent(a:linenum) / &tabstop
 	let nxt_indent = indent(a:linenum+1) / &tabstop
@@ -421,6 +481,10 @@ function! TodoFoldLevel(linenum)
 	endif
 endfunction
 
+" ============================================================================
+" GetEpoch, GetDuration, GetTimes, PrintDuration, FormatDate, FormatDateWord {{{1
+"
+" These functions are unused at this time.
 function! GetEpoch(timestring)
 	return system("ruby -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
 endfunction
@@ -468,40 +532,73 @@ function! FormatDateWord()
 	let @z = old_z
 endfunction
 
-function! TodoFoldText()
+" ============================================================================
+" QTFoldText(): Provide the text displayed on a fold when closed. {{{1
+"
+" This is used by the Vim folding system to find the text to display on fold 
+" headings when folds are closed. We use this to cause the headings to display 
+" in an indented fashion matching the tasks themselves.
+function! QTFoldText()
 	let lines = v:foldend - v:foldstart + 1
 	return substitute(getline(v:foldstart), "\t", '  ', 'g').' ('.lines.')'
 endfunction
 
-set foldtext=TodoFoldText()
-
+" ============================================================================
+" CloseFoldIfOpen(): Quietly close a fold only if it is open. {{{1
+"
+" This is used when automatically opening and closing folded tasks based on 
+" their status.
 function! CloseFoldIfOpen()
 	if foldclosed(line('.')) == -1
 		silent! normal zc
 	endif
 endfunction
 
+" ============================================================================
+" OpenFoldIfClosed(): Quietly open a fold only if it is closed. {{{1
+"
+" This is used when automatically opening and closing folded tasks based on 
+" their status.
 function! OpenFoldIfClosed()
 	if foldclosed(line('.')) > -1
 		execute "silent! normal ".foldlevel(line('.'))."zo"
 	endif
 endfunction
 
+" ============================================================================
+" ShowActiveTasksOnly(): Fold all completed tasks. {{{1
+"
+" The net result is that only incomplete (active) tasks remain open and 
+" visible in the list.
 function! s:ShowActiveTasksOnly()
 	let current_line = line('.')
-	exe "normal! zR:g/DONE\\|HELD/call CloseFoldIfOpen()\<CR>"
+	execute "normal! zR"
+	execute "g/DONE\\|HELD/call CloseFoldIfOpen()"
 	call cursor(current_line, 0)
 endfunction
 
+function! s:ShowTodayTasksOnly()
+	execute "normal! zM"
+	execute "g/".strftime("%Y-%m-%d")."/call OpenFoldIfClosed()"
+	execute "normal! gg"
+endfunction
+
+" ============================================================================
+" FindIncompleteTimestamps(): Execute a search for incomplete timestamps. {{{1
+"
+" This function only sets the forward search pattern. It is called from a 
+" command that forces hlsearch to "on", which has the effect of highlighting 
+" any timestamp notes that have start times and no end times (presumably 
+" beceause you forgot to end them or they are still pending).
 function! s:FindIncompleteTimestamps()
 	let @/ = '\*\sStart\s\[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\]$'
 endfunction
 
-nmap <Leader>tt :call <SID>SetCurrentTask()<CR>
-nmap <Leader>tc gg/>>z.
+" ============================================================================
+" Key mappings {{{1
 nmap <Leader>tD :call <SID>TaskComplete()<CR>
 nmap <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
-nmap <Leader>ty zM:exe ":g/".strftime("%Y-%m-%d")."/call OpenFoldIfClosed()"<CR>gg
+nmap <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
 nmap <Leader>ts :call <SID>AddNextTimeToTask()<CR>
 nmap <Leader>tO :call <SID>AddTaskAbove()<CR>
 nmap <Leader>to :call <SID>AddTaskBelow()<CR>
@@ -510,11 +607,23 @@ nmap <Leader>td :call <SID>MoveTaskDown()<CR>
 nmap <Leader>tS :call <SID>AddSnipToTask()<CR>
 nmap <Leader>tj :call <SID>JumpToSnip()<CR>
 nmap <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
-
 " I don't know if this is rude.
 nnoremap <CR> :call <SID>JumpToSnip()<CR>
 
-autocmd BufLeave,FocusLost * call <SID>SaveOnFocusLost()
+" ============================================================================
+" Autocommands {{{1
+if g:quicktask_autosave
+	autocmd BufLeave,FocusLost * call <SID>SaveOnFocusLost()
+endif
 
+" ============================================================================
+" Abbreviations {{{1
+iabbrev <expr> @today <SID>GetDatestamp('today')
+iabbrev <expr> @tomorrow <SID>GetDatestamp('tomorrow')
+iabbrev <expr> @yesterday <SID>GetDatestamp('yesterday')
+iabbrev <expr> @nextweek <SID>GetDatestamp('nextweek')
+iabbrev <expr> @now <SID>GetTimestamp()
+
+" Compatibility option reset: {{{1
 let &cpo = s:cpo_save
 unlet s:cpo_save
