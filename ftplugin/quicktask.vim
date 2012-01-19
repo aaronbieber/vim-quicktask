@@ -16,6 +16,8 @@ setlocal formatoptions=qnwta
 setlocal spell
 setlocal shiftwidth=2
 setlocal tabstop=2
+setlocal wrap
+setlocal textwidth=80
 " Add the 'at' sign to the list of keyword characters so that our 
 " abbreviations may use it.
 setlocal iskeyword=@,@-@,48-57,_,192-255
