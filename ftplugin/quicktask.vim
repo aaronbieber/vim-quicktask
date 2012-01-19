@@ -90,26 +90,40 @@ function! s:SearchToTaskEnd()
 endfunction
 
 " ============================================================================
+" AddTask(after, indent): Add a task to the file. {{{1
+"
+" Add a 'skeleton' task to the file after the line given and at the indent 
+" level specified.
+function! s:AddTask(after, indent, move_cursor)
+	if a:indent > 0
+		let physical_indent = repeat("\t", a:indent)
+	else
+		let physical_indent = ''
+	endif
+
+	" Compose the two lines to insert
+	let task_line = physical_indent . "- "
+	let date_line = physical_indent . "\t* Added [".strftime("%a %Y-%m-%d")."]"
+	call append(a:after, [ task_line, date_line ])
+
+	if a:move_cursor
+		call cursor(a:after+1, len(getline(a:after+1)))
+		startinsert!
+	endif
+endfunction
+
+" ============================================================================
 " AddTaskAbove(): Add a task above the current task. {{{1
 "
 " Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
 	call s:SearchToTaskStart()
 	let indent = s:GetTaskIndent()
+	" Append the new task above this line
 	let task_line_num = line('.')
 	
-	if indent > -1
-		let physical_indent = repeat("\t", indent)
-
-		" Compose the two lines to insert
-		let task_line = physical_indent . "- "
-		let date_line = physical_indent . "\t* Added [".strftime("%a %Y-%m-%d")."]"
-		call append(task_line_num-1, [ task_line, date_line ])
-		call cursor(task_line_num, len(getline(task_line_num)))
-
-		" Leave us in insert mode! Please!
-		startinsert!
-	endif
+	" Append the task, moving the cursor and starting insert
+	call s:AddTask(task_line_num-1, indent, 1)
 endfunction
 
 " ============================================================================
@@ -121,22 +135,55 @@ function! s:AddTaskBelow()
 	call s:SearchToTaskStart()
 	" Get indent (this will be our new indent)
 	let indent = s:GetTaskIndent()
-
-	if indent > -1
-		let physical_indent = repeat("\t", indent)
-		let task_line = physical_indent . "- "
-		let date_line = physical_indent . "\t* Added [".strftime("%a %Y-%m-%d")."]"
-
-		" Move to the end
-		call s:SearchToTaskEnd()
-		let task_line_num = line('.')
-
-		"execute "normal! o\<CR>\<Esc>k"
-		call append(task_line_num, [ task_line, date_line ])
-		call cursor(task_line_num+1, len(getline(task_line_num+1)))
-
-		startinsert!
+	if indent < 0
+		let indent = 1
 	endif
+
+	" Find the end of the task and note the line number
+	call s:SearchToTaskEnd()
+	let task_line_num = line('.')
+
+	" Append the task, moving the cursor and starting insert
+	call s:AddTask(task_line_num, indent, 1)
+endfunction
+
+" ============================================================================
+" AddChildTask(): Add a task as a child of the current task. {{{1
+function! s:AddChildTask()
+	" If we are not on a task line right now, we need to search up for one.
+	call s:SearchToTaskStart()
+
+	" What is the indentation level of this task?
+	let indent = s:GetTaskIndent()
+	if indent < 0
+		let indent = 1
+	else
+		" The indent we want to find is the tasks's indent plus one.
+		let indent = indent + 1
+	endif
+
+	" Search downward, looking for either the end of the task block or
+	" start/end notes and record them. Begin on the line immediately
+	" following the task line.
+	let current_line = line('.')+1
+	let matched = 0
+	while current_line <= line('$')
+		" If we are still at the correct indent level
+		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
+			" If this line is a sub-task, we have reached our location.
+			if match(getline(current_line), '\v^\s*-') > -1
+				call s:AddTask(current_line-1, indent, 1)
+				let matched = 1
+				break
+			endif
+		else
+			" We reached the next task
+			call s:AddTask(current_line-1, indent, 1)
+			break
+		endif
+
+		let current_line = current_line + 1
+	endwhile
 endfunction
 
 " ============================================================================
@@ -602,6 +649,7 @@ nmap <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
 nmap <Leader>ts :call <SID>AddNextTimeToTask()<CR>
 nmap <Leader>tO :call <SID>AddTaskAbove()<CR>
 nmap <Leader>to :call <SID>AddTaskBelow()<CR>
+nmap <Leader>tc :call <SID>AddChildTask()<CR>
 nmap <Leader>tu :call <SID>MoveTaskUp()<CR>
 nmap <Leader>td :call <SID>MoveTaskDown()<CR>
 nmap <Leader>tS :call <SID>AddSnipToTask()<CR>

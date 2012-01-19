@@ -66,14 +66,13 @@ Nearly all of Quicktask's functionality is exposed through keyboard shortcuts
 which is short for "task."
 
 <Leader>to	Insert a new task below the current task (similar to how
-		typing "o" in Normal mode inserts on the next line). If your 
-		cursor is not somewhere within an existing task, this mapping 
-		will probably not work (see |quicktask-known-issues|).
+		typing "o" in Normal mode inserts on the next line).
 
 <Leader>tO	Insert a new task above the current task (similar to how
-		typing "O" in Normal mode inserts on the previous line). If 
-		your cursor is not somewhere within an existing task, this 
-		mapping will probably not work (see |quicktask-known-issues|).
+		typing "O" in Normal mode inserts on the previous line).
+
+<Leader>tc	Insert a new child task (mnemonic: "task child") at the end of
+		the current task.
 
 <Leader>ts	Add start or end time stamps to the current task (mnemonic:
 		"timestamp", "task start", or "time start"). A new note will 
@@ -167,26 +166,11 @@ imagine, including nested sections.
 6. Known Issues					*quicktask-known-issues*
 
 Quicktask is a labor of love and a side project. As such, there are some 
-problems, and I know about most of them. This is a short list of the issues I 
-know exist, but that haven't stopped me from using Quicktask for long enough 
-to actually fix them, which generally means that I think they're minor.
+problems, and I know about most of them. So far, the issues haven't been so 
+great as to stop me from using Quicktask long enough to fix them, but...
 
 If you want to take a stab at it, by all means, send me a pull request on 
 Github (http://github.com/aaronbieber/quicktask.git) or get in touch with me 
 directly via e-mail at aaron 'at' aaronbieber.com.
-
-1. Inserting new tasks only works if your cursor is located within a task.
-
-	Because Quicktask uses some regex magic to figure out what the indent 
-	level is and where to insert new task lines, it is lost without a 
-	"reference task," which in normal use is the task the cursor is 
-	located within (either on the task line itself or on any note line 
-	beneath it).
-
-	It would be nice if it could insert a task before or after any 
-	non-task and non-note line and indent and fold everything as any 
-	average user would expect.
-
-2. I was sure there were more. Stay tuned... Or submit an issue on Github.
 
 vim:tw=78:ts=8:ft=help:norl:
