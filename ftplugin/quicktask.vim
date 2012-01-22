@@ -27,10 +27,14 @@ set cpo&vim
 setlocal comments=b:#,f:-,f:*
 setlocal formatoptions=qnwta
 setlocal spell
-setlocal shiftwidth=2
-setlocal tabstop=2
 setlocal wrap
 setlocal textwidth=80
+
+" Quicktask uses real tabs with a visible indentation of two spaces.
+setlocal noexpandtab
+setlocal shiftwidth=2
+setlocal tabstop=2
+
 " Add the 'at' sign to the list of keyword characters so that our 
 " abbreviations may use it.
 setlocal iskeyword=@,@-@,48-57,_,192-255
@@ -56,7 +60,7 @@ endif
 function! s:GetTaskIndent()
 	if match(getline(line('.')), '^\t*- ') > -1
 		" What is the indentation level of this task?
-		let matches = matchlist(getline('.'), '\v^(.{-})-')
+		let matches = matchlist(getline('.'), '\v^(\t{-})-')
 		let indent = len(matches[1])
 
 		return indent
@@ -358,7 +362,7 @@ function! s:AddNextTimeToTask()
 		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
 			" If this line is a sub-task, we have reached our location.
 			if match(getline(current_line), '\v^\s*-') > -1
-				call s:AddStartTimeToTask(current_line-1)
+				call s:AddStartTimeToTask(current_line-1, indent)
 				let matched = 1
 				break
 			" If this line is a note, we have more checking to do.
@@ -369,19 +373,19 @@ function! s:AddNextTimeToTask()
 					continue
 				elseif match(getline(current_line), '\vStart \[') > -1
 					if match(getline(current_line), '\v, end \[\d\d:\d\d\]') == -1
-						call s:AddEndTimeToTask(current_line)
+						call s:AddEndTimeToTask(current_line, indent)
 						let matched = 1
 						break
 					endif
 				else
-					call s:AddStartTimeToTask(current_line-1)
+					call s:AddStartTimeToTask(current_line-1, indent)
 					let matched = 1
 					break
 				endif
 			endif
 		else
 			" We reached the next task
-			call s:AddStartTimeToTask(current_line-1)
+			call s:AddStartTimeToTask(current_line-1, indent)
 			break
 		endif
 
@@ -393,22 +397,26 @@ endfunction
 " AddStartTimeToTask(): Add a new start time to a task. {{{1
 "
 " Called by AddNextTimeToTask() to create a new start time note.
-function! s:AddStartTimeToTask(start)
+function! s:AddStartTimeToTask(start, indent)
 	" Place the cursor at the given start line.
-	call cursor(a:start, 0)
+	" call cursor(a:start, 0)
+
+	" Create the physical indent.
+	let physical_indent = repeat("\t", a:indent)
 
 	" Get the timestamp string.
-
 	let today = '['.strftime("%a %Y-%m-%d").']'
 	let now = '['.strftime("%H:%M").']'
 
+	call append(a:start, physical_indent."* Start ".today." ".now)
+
 	" If the current line is a task line, we have to indent the start time. If 
 	" not, then we don't.
-	if match(getline('.'), '\v^\s*-') > -1
-		exe "normal! o\<Tab>* Start ".today." ".now."\<Esc>"
-	else
-		exe "normal! o* Start ".today." ".now."\<Esc>"
-	endif
+	"if match(getline('.'), '\v^\t*-') > -1
+	"	exe "normal! o\<Tab>* Start ".today." ".now."\<Esc>"
+	"else
+	"	exe "normal! o* Start ".today." ".now."\<Esc>"
+	"endif
 endfunction
 
 " ============================================================================
@@ -416,7 +424,7 @@ endfunction
 "
 " Called by AddNextTimeToTask() to append an end time to an existing start 
 " time note.
-function! s:AddEndTimeToTask(start)
+function! s:AddEndTimeToTask(start, indent)
 	" Place the cursor at the given start line.
 	call cursor(a:start, 0)
 
