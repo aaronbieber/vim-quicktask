@@ -31,7 +31,7 @@ setlocal wrap
 setlocal textwidth=80
 
 " Quicktask uses real tabs with a visible indentation of two spaces.
-setlocal noexpandtab
+setlocal expandtab
 setlocal shiftwidth=2
 setlocal tabstop=2
 
@@ -47,6 +47,7 @@ setlocal foldtext=QTFoldText()
 
 " Script settings
 let s:version = '1.0'
+let s:one_indent = repeat(" ", &tabstop)
 
 " Global options, defaults
 if !exists("g:quicktask_autosave")
@@ -58,9 +59,9 @@ endif
 "
 " With the cursor on a task line, return the indent level of that task.
 function! s:GetTaskIndent()
-	if match(getline(line('.')), '^\t*- ') > -1
+	if match(getline(line('.')), '^\s*- ') > -1
 		" What is the indentation level of this task?
-		let matches = matchlist(getline('.'), '\v^(\t{-})-')
+		let matches = matchlist(getline('.'), '\v^(\s{-})-')
 		let indent = len(matches[1])
 
 		return indent
@@ -75,7 +76,7 @@ endfunction
 " Search backwards for a task line. This function moves the cursor.
 " If the cursor is already on a task line, do nothing.
 function! s:SearchToTaskStart()
-	call search('^\t*- ', 'bcW')
+	call search('^\s*- ', 'bcW')
 endfunction
 
 " ============================================================================
@@ -87,10 +88,7 @@ endfunction
 " the next section, or the end of the file.
 function! s:SearchToTaskEnd()
 	" If we are not on a task line
-	if match(getline(line('.')), '^\t*- ') == -1
-		" Find the task line above
-		call s:SearchToTaskStart()
-	endif
+	call s:SearchToTaskStart()
 
 	" Get the indent of this task
 	let indent = s:GetTaskIndent()
@@ -100,11 +98,11 @@ function! s:SearchToTaskEnd()
 		" start/end notes and record them. Begin on the line immediately
 		" following the task line.
 
-		let task_end_line = search('^\t\{0,'.indent.'}[^\t]', 'W')
+		let task_end_line = search('^\s\{0,'.indent.'}[^\s]', 'W')
 
 		" Move the cursor to the line immediately prior, which should be the 
 		" last line of the task we are looking for.
-		call cursor(task_end_line-1,0)
+		call cursor(task_end_line,0)
 	endif
 endfunction
 
@@ -115,14 +113,14 @@ endfunction
 " level specified.
 function! s:AddTask(after, indent, move_cursor)
 	if a:indent > 0
-		let physical_indent = repeat("\t", a:indent)
+		let physical_indent = repeat(" ", a:indent)
 	else
 		let physical_indent = ''
 	endif
 
 	" Compose the two lines to insert
 	let task_line = physical_indent . "- "
-	let date_line = physical_indent . "\t* Added [".strftime("%a %Y-%m-%d")."]"
+	let date_line = physical_indent . s:one_indent . "* Added [".strftime("%a %Y-%m-%d")."]"
 	call append(a:after, [ task_line, date_line ])
 
 	if a:move_cursor
@@ -155,7 +153,7 @@ function! s:AddTaskBelow()
 	" Get indent (this will be our new indent)
 	let indent = s:GetTaskIndent()
 	if indent < 0
-		let indent = 1
+		let indent = &tabstop
 	endif
 
 	" Find the end of the task and note the line number
@@ -175,10 +173,10 @@ function! s:AddChildTask()
 	" What is the indentation level of this task?
 	let indent = s:GetTaskIndent()
 	if indent < 0
-		let indent = 1
+		let indent = &tabstop
 	else
 		" The indent we want to find is the tasks's indent plus one.
-		let indent = indent + 1
+		let indent = indent + &tabstop
 	endif
 
 	" Search downward, looking for either the end of the task block or
@@ -241,7 +239,7 @@ function! s:MoveTaskUp()
 	let task_end = line('.')
 
 	" Is the preceding line at the same or greater indent?
-	if match(getline(task_start-1), '^\t\{'.indent.',}') > -1
+	if match(getline(task_start-1), '^\s\{'.indent.',}') > -1
 		call cursor(task_start-1, 0)
 		call s:SearchToTaskStart()
 		let final_line = line('.')
@@ -264,7 +262,7 @@ function! s:AddSnipToTask()
 
 	" The indent we want to find is the tasks's indent plus one.
 	let indent = indent + 1
-	let physical_indent = repeat("\t", indent)
+	let physical_indent = repeat(a:one_indent, indent)
 
 	" Search downward, looking for either the end of the task block or
 	" start/end notes and record them. Begin on the line immediately
@@ -305,7 +303,7 @@ function! s:AddSnipToTask()
 	let uuid = substitute(system('uuidgen'), '\n', '', '')
 
 	" Insert the snip placeholder in the task
-	call append(snip_line, physical_indent . '* [Snip '.uuid.']')
+	call append(snip_line, physical_indent.'* [Snip '.uuid.']')
 
 	" Insert the snip contents
 	call append(line('$')-1, [ "[+".uuid."]", "", "[-".uuid."]" ])
@@ -323,7 +321,6 @@ function! s:JumpToSnip()
 		let snip_parts = matchlist(getline('.'), '\v\[(Snip |-|\+)([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\]')
 		let snip_prefix = snip_parts[1]
 		let snip_uuid = snip_parts[2]
-		echom "Found a snip starting with ".snip_prefix
 		if len(snip_prefix) && len(snip_uuid)
 			if snip_prefix == 'Snip '
 				call search('\v^\[\+'.snip_uuid.'\]')
@@ -350,7 +347,7 @@ function! s:AddNextTimeToTask()
 	let indent = s:GetTaskIndent()
 
 	" The indent we want to find is the tasks's indent plus one.
-	let indent = indent + 1
+	let indent = indent + &tabstop
 
 	" Search downward, looking for either the end of the task block or
 	" start/end notes and record them. Begin on the line immediately
@@ -402,7 +399,7 @@ function! s:AddStartTimeToTask(start, indent)
 	" call cursor(a:start, 0)
 
 	" Create the physical indent.
-	let physical_indent = repeat("\t", a:indent)
+	let physical_indent = repeat(" ", a:indent)
 
 	" Get the timestamp string.
 	let today = '['.strftime("%a %Y-%m-%d").']'
@@ -412,7 +409,7 @@ function! s:AddStartTimeToTask(start, indent)
 
 	" If the current line is a task line, we have to indent the start time. If 
 	" not, then we don't.
-	"if match(getline('.'), '\v^\t*-') > -1
+	"if match(getline('.'), '\v^\s*-') > -1
 	"	exe "normal! o\<Tab>* Start ".today." ".now."\<Esc>"
 	"else
 	"	exe "normal! o* Start ".today." ".now."\<Esc>"
@@ -444,31 +441,26 @@ endfunction
 " containing the keyword DONE followed by the current timestamp.
 function! s:TaskComplete()
 	" If we are not on a task line right now, we need to search up for one.
-	if match(getline(line('.')), '^\t*- ') == -1
-		exe "normal! ?^\t*- \<CR>"
-	endif
+	call s:SearchToTaskStart()
 
 	" What is the indentation level of this task?
-	let matches = matchlist(getline('.'), '\v^(.{-})-')
-	" Save the actual tab characters for use in the completion bullet later.
-	let physical_indent = matches[1]
-	" Get the size of the indent for use in a regexp.
-	let indent = len(physical_indent)
+	let indent = s:GetTaskIndent()
 
-	" The indent we want to find is the tasks's indent plus one.
-	let indent = indent + 1
+	" The indent we want to find is the tasks's indent plus the length of one
+	" indent (the number of spaces in the user's tabstop).
+	let indent = indent + &tabstop
 
 	" Search downward, looking for either a reduction in the indentation level 
 	" or the end of the file. The first line to fail to match will be the line 
 	" AFTER our insertion point. Start searching on the line after the task 
 	" line.
-	let current_line = line('.')+1
+	let current_line = line('.') + 1
 	let matched = 0
 	while current_line <= line('$')
 		" If we are still at the correct indent level
-		if match(getline(current_line), '\v^\t{'.indent.'}') == -1
+		if match(getline(current_line), '\v^\s{'.indent.'}') == -1
 			" Move the cursor to the line preceding this one.
-			call cursor(current_line-1, 0)
+			let start = current_line - 1
 			" Break out, we have arrived.
 			break
 		endif
@@ -477,16 +469,18 @@ function! s:TaskComplete()
 	endwhile
 
 	" Create the timestamp.
-
 	let today = '['.strftime("%a %Y-%m-%d").']'
+	
 	" Save the contents of register 'a'.
-	let old_a = @a
+	" let old_a = @a
 	" Create the DONE line and save it in register 'a'.
-	let @a = physical_indent."\t"."* DONE ".today
+	" let @a = physical_indent.s:one_indent."* DONE ".today
 	" Insert the DONE line.
-	exe "normal! o\<Esc>\"aP"
+	let physical_indent = repeat(" ", indent)
+	call append(start, physical_indent."* DONE ".today)
+	"exe "normal! o\<Esc>\"aP"
 	" Restore the value of register 'a'.
-	let @a = old_a
+	"let @a = old_a
 endfunction
 
 " ============================================================================
@@ -610,7 +604,7 @@ endfunction
 " in an indented fashion matching the tasks themselves.
 function! QTFoldText()
 	let lines = v:foldend - v:foldstart + 1
-	return substitute(getline(v:foldstart), "\t", '  ', 'g').' ('.lines.')'
+	return substitute(getline(v:foldstart), "\s", '  ', 'g').' ('.lines.')'
 endfunction
 
 " ============================================================================

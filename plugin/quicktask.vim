@@ -36,8 +36,8 @@ function! QTInit()
 	let new_task_list = [	'# Quicktask v'.s:version,
 							\'',
 							\'CURRENT TASKS:',
-							\'	- My first task.',
-							\'		* Added ['.strftime("%a %Y-%m-%d").']',
+							\'  - My first task.',
+							\'    * Added ['.strftime("%a %Y-%m-%d").']',
 							\'COMPLETED TASKS:',
 							\'',
 							\'# vim:ft=quicktask']
