@@ -98,11 +98,11 @@ function! s:SearchToTaskEnd()
 		" start/end notes and record them. Begin on the line immediately
 		" following the task line.
 
-		let task_end_line = search('^\s\{0,'.indent.'}[^\s]', 'W')
+		let task_end_line = search('^\s\{0,'.indent.'}[^ ]', 'W')
 
 		" Move the cursor to the line immediately prior, which should be the 
 		" last line of the task we are looking for.
-		call cursor(task_end_line,0)
+		call cursor(task_end_line-1,0)
 	endif
 endfunction
 

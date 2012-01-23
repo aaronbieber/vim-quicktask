@@ -36,10 +36,10 @@ syn case ignore
 " Sections, tasks, and notes (the building blocks of any list)
 syn match	quicktaskSection		'^.*:\s*$'
 									\ contains=quicktaskMarker,@Spell
-syn match	quicktaskNote			'^\(\s*\)[*].\{-}\n\%(\1\s[^*].\{-}\n\)*'
-									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-									 \quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
-									 \quicktaskIncomplete
+" syn match	quicktaskNote			'^\(\s*\)[*].\{-}\n\%(\1\s[^*].\{-}\n\)*'
+" 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
+" 									 \quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+" 									 \quicktaskIncomplete
 syn match	quicktaskTask			'^\(\s*\)-.\{-}\n\%(\1\s[^-*].\{-}\n\)*'
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
 
@@ -52,7 +52,7 @@ syn keyword	quicktaskDone			contained DONE WATCH HELD
 " Dates and times
 syn match	quicktaskDatestamp		display '\[... \d\d\d\d-\d\d-\d\d\]'
 syn match	quicktaskTimestamp		'\[\d\d:\d\d\]'
-syn match	quicktaskIncomplete		display '\* Start\s\[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\],\@!'hs=s+25
+syn match	quicktaskIncomplete		display '\* Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\],\@!'hs=s+25
 									\ contains=quicktaskDatestamp
 
 " JIRA tickets, e.g. PROJECTNAME-1234
