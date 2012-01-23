@@ -604,7 +604,8 @@ endfunction
 " in an indented fashion matching the tasks themselves.
 function! QTFoldText()
 	let lines = v:foldend - v:foldstart + 1
-	return substitute(getline(v:foldstart), "\s", '  ', 'g').' ('.lines.')'
+	return getline(v:foldstart).' ('.lines.')'
+	"return substitute(getline(v:foldstart), "\s", '  ', 'g').' ('.lines.')'
 endfunction
 
 " ============================================================================

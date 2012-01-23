@@ -36,11 +36,11 @@ syn case ignore
 " Sections, tasks, and notes (the building blocks of any list)
 syn match	quicktaskSection		'^.*:\s*$'
 									\ contains=quicktaskMarker,@Spell
-" syn match	quicktaskNote			'^\(\s*\)[*].\{-}\n\%(\1\s[^*].\{-}\n\)*'
-" 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-" 									 \quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
-" 									 \quicktaskIncomplete
-syn match	quicktaskTask			'^\(\s*\)-.\{-}\n\%(\1\s[^-*].\{-}\n\)*'
+syn match	quicktaskNote			'^\(\s*\)[*].\{-}\n\%(\1\s[^*].\{-}\n\)*'
+									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
+									 \quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+									 \quicktaskIncomplete
+syn match	quicktaskTask			'^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
 
 " Highlight keywords in todo items and notes:
