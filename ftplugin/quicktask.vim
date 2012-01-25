@@ -54,6 +54,15 @@ if !exists("g:quicktask_autosave")
 	let g:quicktask_autosave = 0
 endif
 
+
+" ============================================================================
+" EchoWarning(): Echo a warning message, in color! {{{1
+function! EchoWarning(message)
+	echohl WarningMsg
+	echo a:message
+	echohl None
+endfunction
+
 " ============================================================================
 " GetTaskIndent(): Return current indent level. {{{1
 "
@@ -71,24 +80,30 @@ function! s:GetTaskIndent()
 endfunction
 
 " ============================================================================
-" SearchToTaskStart(): Find the start of the current task. {{{1
+" FindTaskStart(): Find the start of the current task. {{{1
 "
 " Search backwards for a task line. This function moves the cursor.
 " If the cursor is already on a task line, do nothing.
-function! s:SearchToTaskStart()
-	call search('^\s*- ', 'bcW')
+function! s:FindTaskStart(move)
+	" Only move the cursor if we are asked to.
+	let flags = 'bcW'
+	if !a:move
+		let flags .= 'n'
+	endif
+
+	return search('^\s*- ', flags)
 endfunction
 
 " ============================================================================
-" SearchToTaskEnd(): Find the end of the current task. {{{1
+" FindTaskEnd(): Find the end of the current task. {{{1
 "
 " Search forward for the end of the current task. If we do not start on a task 
 " line, we first search backwards for a task line. We then search forward for 
 " the first line that isn't a part of that task, which may be the next task, 
 " the next section, or the end of the file.
-function! s:SearchToTaskEnd()
+function! FindTaskEnd()
 	" If we are not on a task line
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 
 	" Get the indent of this task
 	let indent = s:GetTaskIndent()
@@ -104,6 +119,72 @@ function! s:SearchToTaskEnd()
 		" last line of the task we are looking for.
 		call cursor(task_end_line-1,0)
 	endif
+endfunction
+
+" ============================================================================
+" FindTaskParent(): Find the start line of the current task's parent. {{{1
+"
+" Get the indent level of the current task and, if non-zero, find the first 
+" line of the task that encloses this one (its 'parent').
+function! s:FindTaskParent()
+	call s:FindTaskStart(1)
+	let indent = s:GetTaskIndent()
+
+	if indent == 0
+		return 0
+	else
+		let parent_indent = indent - &tabstop
+		let parent_line = search('^\s\{'.parent_indent.'}[^ ]', 'bnW')
+		return parent_line
+	endif
+endfunction!
+
+" ============================================================================
+" FindNextSibling(): Find the sibling task below the current task. {{{1
+"
+" Get the indent level of the current task and find a task below this one that 
+" has the same indent. If the current task is a child, only find siblings 
+" within the same parent.
+function! s:FindNextSibling()
+	call s:FindTaskStart(1)
+	let indent = s:GetTaskIndent()
+
+	" If we might be a child, get the location of the next line 'below' our 
+	" indent level, such as our parent's next sibling. This is our 'boundary 
+	" line', beyond which we cannot search for siblings.
+	if indent > 0
+		let parent_indent = indent - &tabstop
+		let boundary_line = search('^\s\{'.parent_indent.'}[^ ]', 'nW')
+	else
+		" If we are at the lowest indent level, our boundary is the end of the 
+		" file.
+		let boundary_line = line('$')
+	endif
+
+	return search('^\s\{'.indent.'}-', 'nW', boundary_line-1)
+endfunction
+
+" ============================================================================
+" FindPrevSibling(): Find the sibling task above the current task. {{{1
+"
+" Get the indent level of the current task and find a task above this one that 
+" has the same indent. If the current task is a child, only find siblings 
+" within the same parent.
+function! s:FindPrevSibling()
+	call s:FindTaskStart(1)
+	let indent = s:GetTaskIndent()
+
+	" If we are a child of something, find the boundary at which we must stop 
+	" searching. For backwards searching, this is our parent task's line.
+	if indent > 0
+		let boundary_line = s:FindTaskParent()
+	else
+		" If we are at the lowest indent level, our boundary is the beginning 
+		" of the file.
+		let boundary_line = 1
+	endif
+
+	return search('^\s\{'.indent.'}-', 'bnW', boundary_line)
 endfunction
 
 " ============================================================================
@@ -134,7 +215,7 @@ endfunction
 "
 " Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 	let indent = s:GetTaskIndent()
 	" Append the new task above this line
 	let task_line_num = line('.')
@@ -149,7 +230,7 @@ endfunction
 " Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
 	" Find current task
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 	" Get indent (this will be our new indent)
 	let indent = s:GetTaskIndent()
 	if indent < 0
@@ -157,7 +238,7 @@ function! s:AddTaskBelow()
 	endif
 
 	" Find the end of the task and note the line number
-	call s:SearchToTaskEnd()
+	call s:FindTaskEnd()
 	let task_line_num = line('.')
 
 	" Append the task, moving the cursor and starting insert
@@ -168,7 +249,7 @@ endfunction
 " AddChildTask(): Add a task as a child of the current task. {{{1
 function! s:AddChildTask()
 	" If we are not on a task line right now, we need to search up for one.
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 
 	" What is the indentation level of this task?
 	let indent = s:GetTaskIndent()
@@ -208,19 +289,26 @@ endfunction
 "
 " Move the current task below the following task.
 function! s:MoveTaskDown()
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 	let task_start = line('.')
 
-	call s:SearchToTaskEnd()
-	let task_end = line('.')
-	call cursor(task_start)
+	let next_sibling = s:FindNextSibling()
+	if !next_sibling
+		call EchoWarning("This task has no siblings below it. To move the task elsewhere, use delete/put.")
+		return
+	else
+		call s:FindTaskEnd()
+		let task_end = line('.')
+		call cursor(task_start)
+	endif
 
 	" Pull the contents of the task into a list of lines
 	let task_text = getline(task_start, task_end)
 	" Delete the task from the buffer
 	execute "silent! ".task_start.",".task_end."d"
 
-	call s:SearchToTaskEnd()
+	"Find the end of the task that is now our moved task's prior sibling.
+	call s:FindTaskEnd()
 	let insert_line = line('.')
 	call append(insert_line, task_text)
 	call cursor(insert_line+1, 0)
@@ -231,17 +319,51 @@ endfunction
 "
 " Move the current task up above the preceding task.
 function! s:MoveTaskUp()
-	call s:SearchToTaskStart()
+	if line('.') == 1
+		return
+	endif
+
+	" Move the cursor to the task line that we are moving and get the line 
+	" number and indent level.
+	call s:FindTaskStart(1)
 	let task_start = line('.')
 	let indent = s:GetTaskIndent()
 
-	call s:SearchToTaskEnd()
-	let task_end = line('.')
+	" If we are a child of something, anything, make sure we don't try to move 
+	" our child task into another task.
+	if indent > 0
+		" __Find the task above us, that we would move beyond ("sibling").__
+		" Start the search in the first column because backwards search will 
+		" match on the current line if the match is prior to the cursor 
+		" position.
+		call cursor(task_start, 0)
+		let prev_sibling_line = search('^\s\{'.indent.'}-', 'bnW')
+
+		" __Find our parent.__
+		" We assume that our parent is one indent level lower than we are.
+		let parent_indent = indent - &tabstop
+		" Find the parent line.
+		let parent_line = search('^\s\{'.parent_indent.'}-', 'bnW')
+
+		" If the previous sibling is before the parent line in the file then 
+		" we should not move this task! Display a warning and abort.
+		if parent_line > prev_sibling_line
+			call EchoWarning("You can't move a task out of its parent task; use normal delete/put to move it.")
+			call cursor(task_start)
+
+			return
+		endif
+	endif
+
+	" Place the cursor back at the start of the task to be moved.
+	call cursor(task_start)
 
 	" Is the preceding line at the same or greater indent?
 	if match(getline(task_start-1), '^\s\{'.indent.',}') > -1
-		call cursor(task_start-1, 0)
-		call s:SearchToTaskStart()
+		" Search to the previous task at the same indent.
+		call search('^\s\{'.indent.'}-', 'bW')
+		"call cursor(task_start-1, 0)
+		"call s:FindTaskStart()
 		let final_line = line('.')
 		call s:MoveTaskDown()
 		call cursor(final_line, 0)
@@ -255,7 +377,7 @@ endfunction
 " when snips are in external files.
 function! s:AddSnipToTask()
 	" If we are not on a task line right now, we need to search up for one.
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 
 	" What is the indentation level of this task?
 	let indent = s:GetTaskIndent()
@@ -341,7 +463,7 @@ endfunction
 " If it has complete start and end notes, add a new start note.
 function! s:AddNextTimeToTask()
 	" If we are not on a task line right now, we need to search up for one.
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 
 	" What is the indentation level of this task?
 	let indent = s:GetTaskIndent()
@@ -441,7 +563,7 @@ endfunction
 " containing the keyword DONE followed by the current timestamp.
 function! s:TaskComplete()
 	" If we are not on a task line right now, we need to search up for one.
-	call s:SearchToTaskStart()
+	call s:FindTaskStart(1)
 
 	" What is the indentation level of this task?
 	let indent = s:GetTaskIndent()
