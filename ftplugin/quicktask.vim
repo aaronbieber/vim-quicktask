@@ -57,10 +57,23 @@ endif
 
 " ============================================================================
 " EchoWarning(): Echo a warning message, in color! {{{1
-function! EchoWarning(message)
+function! s:EchoWarning(message)
 	echohl WarningMsg
 	echo a:message
 	echohl None
+endfunction
+
+" ============================================================================
+" GetAnyIndent(): Get the indent of any line. {{{1
+"
+" With the cursor on any line, return the indent level (the number of spaces 
+" at the beginning of the line, simply).
+function! s:GetAnyIndent()
+	" What is the indentation level of this task?
+	let matches = matchlist(getline('.'), '\v^(\s{-})[^ ]')
+	let indent = len(matches[1])
+
+	return indent
 endfunction
 
 " ============================================================================
@@ -68,9 +81,9 @@ endfunction
 "
 " With the cursor on a task line, return the indent level of that task.
 function! s:GetTaskIndent()
-	if match(getline(line('.')), '^\s*- ') > -1
+	if getline('.') =~ '^\s*- '
 		" What is the indentation level of this task?
-		let matches = matchlist(getline('.'), '\v^(\s{-})-')
+		let matches = matchlist(getline('.'), '\v^(\s{-})[^ ]')
 		let indent = len(matches[1])
 
 		return indent
@@ -230,6 +243,12 @@ endfunction
 "
 " Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
+	" We don't support inserting a task above a section.
+	if getline('.') =~ ':$'
+		call s:EchoWarning("Inserting a task above a section isn't supported.")
+		return
+	endif
+
 	call s:FindTaskStart(1)
 	let indent = s:GetTaskIndent()
 	" Append the new task above this line
@@ -244,17 +263,23 @@ endfunction
 " 
 " Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
-	" Find current task
-	call s:FindTaskStart(1)
-	" Get indent (this will be our new indent)
-	let indent = s:GetTaskIndent()
-	if indent < 0
-		let indent = &tabstop
-	endif
+	" We insert directly below sections.
+	if getline('.') =~ ':$'
+		let indent = s:GetAnyIndent() + &tabstop
+		let task_line_num = line('.')
+	else
+		" Find current task
+		call s:FindTaskStart(1)
+		" Get indent (this will be our new indent)
+		let indent = s:GetTaskIndent()
+		if indent < 0
+			let indent = &tabstop
+		endif
 
-	" Find the end of the task and note the line number
-	call s:FindTaskEnd(1)
-	let task_line_num = line('.')
+		" Find the end of the task and note the line number
+		call s:FindTaskEnd(1)
+		let task_line_num = line('.')
+	endif
 
 	" Append the task, moving the cursor and starting insert
 	call s:AddTask(task_line_num, indent, 1)
@@ -309,7 +334,7 @@ function! s:MoveTaskDown()
 
 	let next_sibling = s:FindNextSibling()
 	if !next_sibling
-		call EchoWarning("This task has no siblings below it. To move the task elsewhere, use delete/put.")
+		call s:EchoWarning("This task has no siblings below it. To move the task elsewhere, use delete/put.")
 		return
 	else
 		call s:FindTaskEnd(1)
@@ -363,7 +388,7 @@ function! s:MoveTaskUp()
 		" If the previous sibling is before the parent line in the file then 
 		" we should not move this task! Display a warning and abort.
 		if parent_line > prev_sibling_line
-			call EchoWarning("You can't move a task out of its parent task; use normal delete/put to move it.")
+			call s:EchoWarning("You can't move a task out of its parent task; use normal delete/put to move it.")
 			call cursor(task_start)
 
 			return
