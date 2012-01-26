@@ -3,7 +3,7 @@
 Quicktask is a lightweight but feature-rich task management plugin designed to easily and effectively track a list of tasks, their added and completed dates, time spent, notes, and so forth. Inspired by the todolist Vim syntax scheme created by Eric Talevich, Quicktask marries sensible and legible text coloration with keyboard shortcuts to keep you typing tasks rather than metadata.
 
 <div align="center">
-![Quicktask](http://quicktask.aaronbieber.com/images/quicktask_screen.png)
+	<img src="http://quicktask.aaronbieber.com/images/quicktask_screen.png" alt="Quicktask screenshot" />
 </div>
 
 # Installation
