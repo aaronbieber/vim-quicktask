@@ -101,23 +101,29 @@ endfunction
 " line, we first search backwards for a task line. We then search forward for 
 " the first line that isn't a part of that task, which may be the next task, 
 " the next section, or the end of the file.
-function! FindTaskEnd()
+function! s:FindTaskEnd(move)
 	" If we are not on a task line
 	call s:FindTaskStart(1)
+	let task_end_line = line('.')
 
 	" Get the indent of this task
 	let indent = s:GetTaskIndent()
 
+	" If this is a task line
 	if indent > -1
 		" Search downward, looking for either the end of the task block or
 		" start/end notes and record them. Begin on the line immediately
 		" following the task line.
 
-		let task_end_line = search('^\s\{0,'.indent.'}[^ ]', 'W')
+		let task_end_line = search('^\s\{0,'.indent.'}[^ ]', 'nW')
+	endif
 
+	if a:move
 		" Move the cursor to the line immediately prior, which should be the 
 		" last line of the task we are looking for.
-		call cursor(task_end_line-1,0)
+		call cursor(task_end_line-1, 0)
+	else
+		return task_end_line - 1
 	endif
 endfunction
 
@@ -188,6 +194,15 @@ function! s:FindPrevSibling()
 endfunction
 
 " ============================================================================
+" SelectTask(): Create a linewise visual selection of the current task. {{{1
+function! s:SelectTask()
+	call s:FindTaskStart(1)
+	let end_line = s:FindTaskEnd(0)
+
+	execute "normal V".end_line."G"
+endfunction
+
+" ============================================================================
 " AddTask(after, indent): Add a task to the file. {{{1
 "
 " Add a 'skeleton' task to the file after the line given and at the indent 
@@ -238,7 +253,7 @@ function! s:AddTaskBelow()
 	endif
 
 	" Find the end of the task and note the line number
-	call s:FindTaskEnd()
+	call s:FindTaskEnd(1)
 	let task_line_num = line('.')
 
 	" Append the task, moving the cursor and starting insert
@@ -297,7 +312,7 @@ function! s:MoveTaskDown()
 		call EchoWarning("This task has no siblings below it. To move the task elsewhere, use delete/put.")
 		return
 	else
-		call s:FindTaskEnd()
+		call s:FindTaskEnd(1)
 		let task_end = line('.')
 		call cursor(task_start)
 	endif
@@ -308,7 +323,7 @@ function! s:MoveTaskDown()
 	execute "silent! ".task_start.",".task_end."d"
 
 	"Find the end of the task that is now our moved task's prior sibling.
-	call s:FindTaskEnd()
+	call s:FindTaskEnd(1)
 	let insert_line = line('.')
 	call append(insert_line, task_text)
 	call cursor(insert_line+1, 0)
@@ -783,6 +798,7 @@ endfunction
 
 " ============================================================================
 " Key mappings {{{1
+nmap <Leader>tv :call <SID>SelectTask()<CR>
 nmap <Leader>tD :call <SID>TaskComplete()<CR>
 nmap <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
 nmap <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
