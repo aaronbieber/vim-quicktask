@@ -1,6 +1,7 @@
 *quicktask.txt*	Lightweight task management plugin.
 
 	      QUICKTASK, THE LIGHTWEIGHT TASK MANAGEMENT PLUGIN
+				 VERSION 1.1
 
 1. Introduction ............................... |quicktask-introduction|
 2. Getting Started ............................ |quicktask-getting-started|
@@ -111,6 +112,11 @@ which is short for "task."
 		works when you have used the Quicktask date stamp format for 
 		the date, as it is a pattern-based match. This would unfold 
 		items that were added OR completed today.
+
+<Leader>tv	Visually select the current task. This allows you to very
+		quickly use Vim's own yank/delete/put commands to move tasks 
+		around to other sections or copy them to the system clipboard, 
+		etc.
 
 <Leader>tfi	Find incomplete timestamps (mnemonic: "task find incomplete").
 		This mapping actually performs a search for progress lines 
