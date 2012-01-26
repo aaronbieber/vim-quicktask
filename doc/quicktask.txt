@@ -8,7 +8,9 @@
 4. Abbreviations .............................. |quicktask-abbreviations|
 5. Options .................................... |quicktask-options|
 6. Organizing Tasks ........................... |quicktask-organizing-tasks|
-7. Known Issues ............................... |quicktask-known-issues|
+7. Advanced Topics ............................ |quicktask-advanced-topics|
+	7.1 Setting the Filetype .............. |quicktask-adv-filetype|
+8. Known Issues ............................... |quicktask-known-issues|
 
 ===============================================================================
 1. Introduction					*quicktask-introduction*
@@ -181,7 +183,32 @@ There is no reason not to create any sections or project groupings you can
 imagine, including nested sections.
 
 ===============================================================================
-7. Known Issues					*quicktask-known-issues*
+7. Advanced Topics				*quicktask-advanced-topics*
+
+7.1 Setting the Filetype			*quicktask-adv-filetype*
+
+Quicktask is a filetype plugin (ftplugin), meaning that it is reliant on the 
+filetype of the current file in order to operate. The Quicktask filetype is 
+simply "quicktask" and, when set, Vim will load the Quicktask code and make 
+its commands available to you.
+
+When you create a new Quicktask list with QTInit, a "modeline" is placed at 
+the end of the file. The modeline will cause Vim to treat the file as a 
+Quicktask-type file no matter what you name it (for information on modelines, 
+read |modeline|). If modelines are disabled in your configuration, you may 
+want to use another method to conveniently re-set the filetype of your 
+Quicktask files. One common way to achieve that is with a file extension 
+autocommand (see |autocommand|).
+
+For example, to make all files named *.quicktask open as Quicktask files, add 
+this line to your .vimrc: >
+	autocmd BufNewFile,BufRead *.quicktask setf quicktask
+>
+This tells Vim that when opening a new file or reading in a new buffer, if the 
+filename matches *.quicktask, set the filetype to quicktask (see |setf|).
+
+===============================================================================
+8. Known Issues					*quicktask-known-issues*
 
 Quicktask is a labor of love and a side project. As such, there are some 
 problems, and I know about most of them. So far, the issues haven't been so 
