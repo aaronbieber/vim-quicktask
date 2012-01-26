@@ -6,8 +6,9 @@
 2. Getting Started ............................ |quicktask-getting-started|
 3. Keyboard Shortcuts ......................... |quicktask-keyboard-shortcuts|
 4. Abbreviations .............................. |quicktask-abbreviations|
-5. Organizing Tasks ........................... |quicktask-organizing-tasks|
-6. Known Issues ............................... |quicktask-known-issues|
+5. Options .................................... |quicktask-options|
+6. Organizing Tasks ........................... |quicktask-organizing-tasks|
+7. Known Issues ............................... |quicktask-known-issues|
 
 ===============================================================================
 1. Introduction					*quicktask-introduction*
@@ -139,7 +140,24 @@ through the mnemonic of entering a stamp "at" a particular time.
 			[13:45]
 <
 ===============================================================================
-5. Organizing Tasks				*quicktask-organizing-tasks*
+5. Options					*quicktask-options*
+
+Quicktask only has one option at the moment.
+
+g:quicktask_autosave				*g:quicktask_autosave*
+		If set to true (a non-zero number, such as 1), Quicktask will 
+		attempt to save the current list file when the window loses 
+		focus or you switch buffers.  This only works in Vim editors 
+		that respond to the BufLeave or FocusLost events (to my 
+		knowledge, FocusLost is supported by the graphical variants of 
+		Vim and BufLeave is supported by all Vims). >
+			let g:quicktask_autosave = 1
+<
+		If the current list file is not saved somewhere, the autosave 
+		will silently fail! Keep that in mind.
+
+===============================================================================
+6. Organizing Tasks				*quicktask-organizing-tasks*
 
 The philosophy of Quicktask is to provide a simple and versatile feature set 
 that each user can apply in their own way. Although some of the formatting and 
@@ -163,7 +181,7 @@ There is no reason not to create any sections or project groupings you can
 imagine, including nested sections.
 
 ===============================================================================
-6. Known Issues					*quicktask-known-issues*
+7. Known Issues					*quicktask-known-issues*
 
 Quicktask is a labor of love and a side project. As such, there are some 
 problems, and I know about most of them. So far, the issues haven't been so 
