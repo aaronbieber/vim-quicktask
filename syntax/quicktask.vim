@@ -59,9 +59,7 @@ syn match	quicktaskIncomplete		display '\* Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\
 syn match	quicktaskTicket			display '\C[A-Z]\+-[0-9]\+'
 
 " Snips (not currently supported in the official release)
-syn match	quicktaskSnip			display '\[\(Snip \|-\|+\)[a-z0-9]\{8}-
-									\[a-z0-9]\{4}-[a-z0-9]\{4}-[a-z0-9]\{4}-
-									\[a-z0-9]\{12}\]'
+syn match	quicktaskSnip			display '\[\$:\s.\{-}]'
 
 
 syn match	quicktaskConstant		'\<[~yn]\>'

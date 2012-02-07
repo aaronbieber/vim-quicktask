@@ -49,11 +49,40 @@ setlocal foldtext=QTFoldText()
 let s:version = '1.1'
 let s:one_indent = repeat(" ", &tabstop)
 
+if has('gui_win32')
+	let s:path_sep = '\'
+else
+	let s:path_sep = '/'
+endif
+
 " Global options, defaults
 if !exists("g:quicktask_autosave")
 	let g:quicktask_autosave = 0
 endif
 
+" Set up the snips path, if possible.
+if exists("g:quicktask_snip_path")
+	" Should we create the directory?
+	if !isdirectory(g:quicktask_snip_path)
+		echo "Your snips directory, ".g:quicktask_snip_path." doesn't exist."
+		let ans = ''
+		while match(ans, '[YyNn]') < 0
+			echo "Create it? [Y/n] "
+			let ans = nr2char(getchar())
+		endwhile
+
+		if ans == 'y' || ans == 'Y'
+			call mkdir(g:quicktask_snip_path)
+		elseif ans == 'n' || ans == 'N'
+			echo "You will not be able to create new snips or load existing snips."
+		endif
+	endif
+
+	" Append a trailing slash if one was not given.
+	if match(g:quicktask_snip_path, '[\/]$') == -1
+		let g:quicktask_snip_path = g:quicktask_snip_path.s:path_sep
+	endif
+endif
 
 " ============================================================================
 " EchoWarning(): Echo a warning message, in color! {{{1
@@ -213,6 +242,55 @@ function! s:SelectTask()
 	let end_line = s:FindTaskEnd(0)
 
 	execute "normal V".end_line."G"
+endfunction
+
+" ============================================================================
+" GetTaskText(): Get the first line of text of a task. {{{1
+function! s:GetTaskText()
+	let task_line_num = s:FindTaskStart(0)
+	if task_line_num
+		return getline(task_line_num)
+	endif
+
+	" Fallback
+	return ''
+endfunction
+
+" ============================================================================
+" MakeSnipName(): Make a snip name out of the task text. {{{1
+function! s:MakeSnipName()
+	" Begin with the text of the task.
+	let task_text = s:GetTaskText()
+	let task_string = ''
+
+	" If we have task text, create a snip string automatically.
+	if len(task_text)
+		let matches = matchlist(task_text, '^\s*- \(.*\)$')
+		if len(matches)
+			let task_string = tolower(substitute(matches[1], '[^a-zA-Z]', '-', 'g'))
+			if strlen(task_string) > 30
+				let task_string = matchstr(task_string, '^\(.\{15\}\)')
+			endif
+		endif
+	endif
+
+	" If we couldn't get an adequate string automatically, prompt the user for 
+	" one.
+	if !strlen(task_string)
+		echo "The task's name is not long enough or couldn't be found."
+		let orig_text = input("Enter a name for the snip: ")
+		let task_string = tolower(substitute(orig_text, '[^a-zA-Z]', '-', 'g'))
+		if strlen(task_string) > 30
+			let task_string = matchstr(task_string, '^\(.\{15\}\)')
+		endif
+	endif
+
+	" Don't let the string END with a hyphen.
+	if match(task_string, '-$')
+		let task_string = substitute(task_string, '-$', '', '')
+	endif
+
+	return strftime('%Y%m%d%H%M%S-').task_string
 endfunction
 
 " ============================================================================
@@ -423,8 +501,8 @@ function! s:AddSnipToTask()
 	let indent = s:GetTaskIndent()
 
 	" The indent we want to find is the tasks's indent plus one.
-	let indent = indent + 1
-	let physical_indent = repeat(a:one_indent, indent)
+	let indent = indent + &tabstop
+	let physical_indent = repeat(" ", indent)
 
 	" Search downward, looking for either the end of the task block or
 	" start/end notes and record them. Begin on the line immediately
@@ -440,7 +518,7 @@ function! s:AddSnipToTask()
 				break
 			elseif match(getline(current_line), '\vAdded \[') > -1 || 
 				  \match(getline(current_line), '\vStart \[') > -1 ||
-				  \match(getline(current_line), '\v\[Snip ') > -1
+				  \match(getline(current_line), '\v\[\$:') > -1
 
 				" We skip over Added, Start, and Snip lines if they exist.
 				let current_line = current_line + 1
@@ -461,16 +539,15 @@ function! s:AddSnipToTask()
 		let current_line = current_line + 1
 	endwhile
 
-	" Generate a UUID
-	let uuid = substitute(system('uuidgen'), '\n', '', '')
+	" Generate a snip name
+	let snip_name = s:MakeSnipName()
+	"let uuid = substitute(system('uuidgen'), '\n', '', '')
 
 	" Insert the snip placeholder in the task
-	call append(snip_line, physical_indent.'* [Snip '.uuid.']')
+	call append(snip_line, physical_indent.'* [$: '.snip_name.']')
 
-	" Insert the snip contents
-	call append(line('$')-1, [ "[+".uuid."]", "", "[-".uuid."]" ])
-	call cursor(line('$')-2, 0)
-	startinsert!
+	" Create a new snip file
+	execute "new ".g:quicktask_snip_path.snip_name
 endfunction
 
 " ============================================================================
