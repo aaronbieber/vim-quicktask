@@ -566,6 +566,8 @@ function! s:AddSnipToTask()
 
 	" Create a new snip file
 	execute "silent! topleft ".g:quicktask_snip_win_split_direction." ".g:quicktask_snip_win_height."split ".g:quicktask_snip_path.snip_name
+	execute "normal I# vim:ft=".g:quicktask_snip_default_filetype."\<ESC>O\<ESC>O\<ESC>"
+	execute "setf ".g:quicktask_snip_default_filetype
 	call s:ConfigureSnipWindow()
 endfunction
 
@@ -617,7 +619,6 @@ function! s:ConfigureSnipWindow()
 	if g:quicktask_snip_win_maximize
 		execute "resize"
 	endif
-	execute "set filetype=".g:quicktask_snip_default_filetype
 	execute "nnoremap <silent> <buffer> <ESC> :bdelete<CR>"
 endfunction
 
@@ -964,7 +965,7 @@ nmap <Leader>tS :call <SID>AddSnipToTask()<CR>
 nmap <Leader>tj :call <SID>JumpToSnip()<CR>
 nmap <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
 " I don't know if this is rude.
-nnoremap <CR> :call OpenSnip()<CR>
+nnoremap <buffer> <CR> :call OpenSnip()<CR>
 
 " ============================================================================
 " Autocommands {{{1
