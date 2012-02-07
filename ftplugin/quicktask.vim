@@ -712,7 +712,7 @@ endfunction
 "
 " These functions are unused at this time.
 function! GetEpoch(timestring)
-	return system("ruby -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
+	return system("c:\\cygwin\\bin\\ruby -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
 endfunction
 
 function! GetDuration(times)
@@ -811,6 +811,18 @@ function! s:ShowTodayTasksOnly()
 endfunction
 
 " ============================================================================
+" ShowWatchedTasksOnly(): Fold all except watched tasks. {{{1
+"
+" The net result is that only tasks that you are watching (containing "WATCH" 
+" remain open and visible in the list.
+function! s:ShowWatchedTasksOnly()
+	let current_line = line('.')
+	execute "normal! zM"
+	execute "g/WATCH/call OpenFoldIfClosed()"
+	call cursor(current_line, 0)
+endfunction
+
+" ============================================================================
 " FindIncompleteTimestamps(): Execute a search for incomplete timestamps. {{{1
 "
 " This function only sets the forward search pattern. It is called from a 
@@ -826,6 +838,7 @@ endfunction
 nmap <Leader>tv :call <SID>SelectTask()<CR>
 nmap <Leader>tD :call <SID>TaskComplete()<CR>
 nmap <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
+nmap <Leader>tw :call <SID>ShowWatchedTasksOnly()<CR>
 nmap <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
 nmap <Leader>ts :call <SID>AddNextTimeToTask()<CR>
 nmap <Leader>tO :call <SID>AddTaskAbove()<CR>
