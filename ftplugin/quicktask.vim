@@ -60,6 +60,24 @@ if !exists("g:quicktask_autosave")
 	let g:quicktask_autosave = 0
 endif
 
+if !exists("g:quicktask_snip_win_height")
+	let g:quicktask_snip_win_height = ''
+endif
+
+if !exists("g:quicktask_snip_default_filetype")
+	let g:quicktask_snip_default_filetype = "text"
+endif
+
+if !exists("g:quicktask_snip_win_split_direction") ||
+	\ g:quicktask_snip_win_split_direction != "vertical"
+
+	let g:quicktask_snip_win_split_direction = ""
+endif
+
+if !exists("g:quicktask_snip_win_maximize")
+	let g:quicktask_snip_win_maximize = 0
+endif
+
 " Set up the snips path, if possible.
 if exists("g:quicktask_snip_path")
 	" Should we create the directory?
@@ -547,7 +565,8 @@ function! s:AddSnipToTask()
 	call append(snip_line, physical_indent.'* [$: '.snip_name.']')
 
 	" Create a new snip file
-	execute "new ".g:quicktask_snip_path.snip_name
+	execute "silent! topleft ".g:quicktask_snip_win_split_direction." ".g:quicktask_snip_win_height."split ".g:quicktask_snip_path.snip_name
+	call s:ConfigureSnipWindow()
 endfunction
 
 " ============================================================================
@@ -571,6 +590,37 @@ function! s:JumpToSnip()
 		endif
 	endif
 endfunction
+
+" ============================================================================
+" OpenSnip(): Open a snip file or reveal its buffer. {{{1
+function! OpenSnip()
+	if match(getline('.'),  '\[\$:\s.\{-}]') > -1
+		let snip_parts = matchlist(getline('.'), '\[\$:\s\(.\{-}\)]')
+		if len(snip_parts) < 1
+			return
+		endif
+
+		let filename = snip_parts[1]
+		let full_file = g:quicktask_snip_path.filename
+		if filereadable(full_file)
+			execute "silent! topleft ".g:quicktask_snip_win_split_direction." ".g:quicktask_snip_win_height."split ".full_file
+			call s:ConfigureSnipWindow()
+		else
+			call s:EchoWarning("The snip file couldn't be found or couldn't be read.")
+		endif
+	endif
+endfunction
+
+" ============================================================================
+" ConfigureSnipWindow(): Set up the options for the snip window. {{{1
+function! s:ConfigureSnipWindow()
+	if g:quicktask_snip_win_maximize
+		execute "resize"
+	endif
+	execute "set filetype=".g:quicktask_snip_default_filetype
+	execute "nnoremap <silent> <buffer> <ESC> :bdelete<CR>"
+endfunction
+
 
 " ============================================================================
 " AddNextTimeToTask(): Add the next logical timestamp to a task. {{{1
@@ -914,7 +964,7 @@ nmap <Leader>tS :call <SID>AddSnipToTask()<CR>
 nmap <Leader>tj :call <SID>JumpToSnip()<CR>
 nmap <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
 " I don't know if this is rude.
-nnoremap <CR> :call <SID>JumpToSnip()<CR>
+nnoremap <CR> :call OpenSnip()<CR>
 
 " ============================================================================
 " Autocommands {{{1
