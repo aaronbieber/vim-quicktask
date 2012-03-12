@@ -177,7 +177,7 @@ to be created.
 To add a new snip to a task, simply press <Leader>tS (with a capital "S"). The 
 snip note is added to the current task and the file is opened for editing.  
 There are a variety of options available for how that process is handled; see 
-*quicktask-options* below.
+|quicktask-options| below.
 
 ===============================================================================
 6. Options					*quicktask-options*
