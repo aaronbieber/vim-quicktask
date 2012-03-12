@@ -396,28 +396,8 @@ function! s:AddChildTask()
 		let indent = indent + &tabstop
 	endif
 
-	" Search downward, looking for either the end of the task block or
-	" start/end notes and record them. Begin on the line immediately
-	" following the task line.
-	let current_line = line('.')+1
-	let matched = 0
-	while current_line <= line('$')
-		" If we are still at the correct indent level
-		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
-			" If this line is a sub-task, we have reached our location.
-			if match(getline(current_line), '\v^\s*-') > -1
-				call s:AddTask(current_line-1, indent, 1)
-				let matched = 1
-				break
-			endif
-		else
-			" We reached the next task
-			call s:AddTask(current_line-1, indent, 1)
-			break
-		endif
-
-		let current_line = current_line + 1
-	endwhile
+	call s:FindTaskEnd(1)
+	call s:AddTask(line('.'), indent, 1)
 endfunction
 
 " ============================================================================
@@ -840,7 +820,7 @@ endfunction
 "
 " These functions are unused at this time.
 function! GetEpoch(timestring)
-	return system("ruby -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
+	return system("c:/cygwin/bin/ruby.exe -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
 endfunction
 
 function! GetDuration(times)
