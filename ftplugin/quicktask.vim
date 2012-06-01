@@ -49,11 +49,58 @@ setlocal foldtext=QTFoldText()
 let s:version = '1.1'
 let s:one_indent = repeat(" ", &tabstop)
 
+if has('gui_win32')
+	let s:path_sep = '\'
+else
+	let s:path_sep = '/'
+endif
+
 " Global options, defaults
 if !exists("g:quicktask_autosave")
 	let g:quicktask_autosave = 0
 endif
 
+if !exists("g:quicktask_snip_win_height")
+	let g:quicktask_snip_win_height = ''
+endif
+
+if !exists("g:quicktask_snip_default_filetype")
+	let g:quicktask_snip_default_filetype = "text"
+endif
+
+if !exists("g:quicktask_snip_win_split_direction") ||
+	\ g:quicktask_snip_win_split_direction != "vertical"
+
+	let g:quicktask_snip_win_split_direction = ""
+endif
+
+if !exists("g:quicktask_snip_win_maximize")
+	let g:quicktask_snip_win_maximize = 0
+endif
+
+" Set up the snips path, if possible.
+if exists("g:quicktask_snip_path")
+	" Should we create the directory?
+	if !isdirectory(g:quicktask_snip_path)
+		echo "Your snips directory, ".g:quicktask_snip_path." doesn't exist."
+		let ans = ''
+		while match(ans, '[YyNn]') < 0
+			echo "Create it? [Y/n] "
+			let ans = nr2char(getchar())
+		endwhile
+
+		if ans == 'y' || ans == 'Y'
+			call mkdir(g:quicktask_snip_path)
+		elseif ans == 'n' || ans == 'N'
+			echo "You will not be able to create new snips or load existing snips."
+		endif
+	endif
+
+	" Append a trailing slash if one was not given.
+	if match(g:quicktask_snip_path, '[\/]$') == -1
+		let g:quicktask_snip_path = g:quicktask_snip_path.s:path_sep
+	endif
+endif
 
 " ============================================================================
 " EchoWarning(): Echo a warning message, in color! {{{1
@@ -216,6 +263,55 @@ function! s:SelectTask()
 endfunction
 
 " ============================================================================
+" GetTaskText(): Get the first line of text of a task. {{{1
+function! s:GetTaskText()
+	let task_line_num = s:FindTaskStart(0)
+	if task_line_num
+		return getline(task_line_num)
+	endif
+
+	" Fallback
+	return ''
+endfunction
+
+" ============================================================================
+" MakeSnipName(): Make a snip name out of the task text. {{{1
+function! s:MakeSnipName()
+	" Begin with the text of the task.
+	let task_text = s:GetTaskText()
+	let task_string = ''
+
+	" If we have task text, create a snip string automatically.
+	if len(task_text)
+		let matches = matchlist(task_text, '^\s*- \(.*\)$')
+		if len(matches)
+			let task_string = tolower(substitute(matches[1], '[^a-zA-Z]', '-', 'g'))
+			if strlen(task_string) > 30
+				let task_string = matchstr(task_string, '^\(.\{15\}\)')
+			endif
+		endif
+	endif
+
+	" If we couldn't get an adequate string automatically, prompt the user for 
+	" one.
+	if !strlen(task_string)
+		echo "The task's name is not long enough or couldn't be found."
+		let orig_text = input("Enter a name for the snip: ")
+		let task_string = tolower(substitute(orig_text, '[^a-zA-Z]', '-', 'g'))
+		if strlen(task_string) > 30
+			let task_string = matchstr(task_string, '^\(.\{15\}\)')
+		endif
+	endif
+
+	" Don't let the string END with a hyphen.
+	if match(task_string, '-$')
+		let task_string = substitute(task_string, '-$', '', '')
+	endif
+
+	return strftime('%Y%m%d%H%M%S-').task_string
+endfunction
+
+" ============================================================================
 " AddTask(after, indent): Add a task to the file. {{{1
 "
 " Add a 'skeleton' task to the file after the line given and at the indent 
@@ -300,28 +396,8 @@ function! s:AddChildTask()
 		let indent = indent + &tabstop
 	endif
 
-	" Search downward, looking for either the end of the task block or
-	" start/end notes and record them. Begin on the line immediately
-	" following the task line.
-	let current_line = line('.')+1
-	let matched = 0
-	while current_line <= line('$')
-		" If we are still at the correct indent level
-		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
-			" If this line is a sub-task, we have reached our location.
-			if match(getline(current_line), '\v^\s*-') > -1
-				call s:AddTask(current_line-1, indent, 1)
-				let matched = 1
-				break
-			endif
-		else
-			" We reached the next task
-			call s:AddTask(current_line-1, indent, 1)
-			break
-		endif
-
-		let current_line = current_line + 1
-	endwhile
+	call s:FindTaskEnd(1)
+	call s:AddTask(line('.'), indent, 1)
 endfunction
 
 " ============================================================================
@@ -423,8 +499,8 @@ function! s:AddSnipToTask()
 	let indent = s:GetTaskIndent()
 
 	" The indent we want to find is the tasks's indent plus one.
-	let indent = indent + 1
-	let physical_indent = repeat(a:one_indent, indent)
+	let indent = indent + &tabstop
+	let physical_indent = repeat(" ", indent)
 
 	" Search downward, looking for either the end of the task block or
 	" start/end notes and record them. Begin on the line immediately
@@ -440,7 +516,7 @@ function! s:AddSnipToTask()
 				break
 			elseif match(getline(current_line), '\vAdded \[') > -1 || 
 				  \match(getline(current_line), '\vStart \[') > -1 ||
-				  \match(getline(current_line), '\v\[Snip ') > -1
+				  \match(getline(current_line), '\v\[\$:') > -1
 
 				" We skip over Added, Start, and Snip lines if they exist.
 				let current_line = current_line + 1
@@ -461,16 +537,18 @@ function! s:AddSnipToTask()
 		let current_line = current_line + 1
 	endwhile
 
-	" Generate a UUID
-	let uuid = substitute(system('uuidgen'), '\n', '', '')
+	" Generate a snip name
+	let snip_name = s:MakeSnipName()
+	"let uuid = substitute(system('uuidgen'), '\n', '', '')
 
 	" Insert the snip placeholder in the task
-	call append(snip_line, physical_indent.'* [Snip '.uuid.']')
+	call append(snip_line, physical_indent.'* [$: '.snip_name.']')
 
-	" Insert the snip contents
-	call append(line('$')-1, [ "[+".uuid."]", "", "[-".uuid."]" ])
-	call cursor(line('$')-2, 0)
-	startinsert!
+	" Create a new snip file
+	execute "silent! topleft ".g:quicktask_snip_win_split_direction." ".g:quicktask_snip_win_height."split ".g:quicktask_snip_path.snip_name
+	execute "normal I# vim:ft=".g:quicktask_snip_default_filetype."\<ESC>O\<ESC>O\<ESC>"
+	execute "setf ".g:quicktask_snip_default_filetype
+	call s:ConfigureSnipWindow()
 endfunction
 
 " ============================================================================
@@ -494,6 +572,36 @@ function! s:JumpToSnip()
 		endif
 	endif
 endfunction
+
+" ============================================================================
+" OpenSnip(): Open a snip file or reveal its buffer. {{{1
+function! OpenSnip()
+	if match(getline('.'),  '\[\$:\s.\{-}]') > -1
+		let snip_parts = matchlist(getline('.'), '\[\$:\s\(.\{-}\)]')
+		if len(snip_parts) < 1
+			return
+		endif
+
+		let filename = snip_parts[1]
+		let full_file = g:quicktask_snip_path.filename
+		if filereadable(full_file)
+			execute "silent! topleft ".g:quicktask_snip_win_split_direction." ".g:quicktask_snip_win_height."split ".full_file
+			call s:ConfigureSnipWindow()
+		else
+			call s:EchoWarning("The snip file couldn't be found or couldn't be read.")
+		endif
+	endif
+endfunction
+
+" ============================================================================
+" ConfigureSnipWindow(): Set up the options for the snip window. {{{1
+function! s:ConfigureSnipWindow()
+	if g:quicktask_snip_win_maximize
+		execute "resize"
+	endif
+	execute "nnoremap <silent> <buffer> <ESC> :bdelete<CR>"
+endfunction
+
 
 " ============================================================================
 " AddNextTimeToTask(): Add the next logical timestamp to a task. {{{1
@@ -712,7 +820,7 @@ endfunction
 "
 " These functions are unused at this time.
 function! GetEpoch(timestring)
-	return system("c:\\cygwin\\bin\\ruby -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
+	return system("c:/cygwin/bin/ruby.exe -e 'require \"time\"; print Time.parse(ARGV[0]).to_i' -- ".a:timestring)
 endfunction
 
 function! GetDuration(times)
@@ -850,7 +958,7 @@ nmap <Leader>tS :call <SID>AddSnipToTask()<CR>
 nmap <Leader>tj :call <SID>JumpToSnip()<CR>
 nmap <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
 " I don't know if this is rude.
-nnoremap <CR> :call <SID>JumpToSnip()<CR>
+nnoremap <buffer> <CR> :call OpenSnip()<CR>
 
 " ============================================================================
 " Autocommands {{{1

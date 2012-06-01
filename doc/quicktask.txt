@@ -7,11 +7,12 @@
 2. Getting Started ............................ |quicktask-getting-started|
 3. Keyboard Shortcuts ......................... |quicktask-keyboard-shortcuts|
 4. Abbreviations .............................. |quicktask-abbreviations|
-5. Options .................................... |quicktask-options|
-6. Organizing Tasks ........................... |quicktask-organizing-tasks|
-7. Advanced Topics ............................ |quicktask-advanced-topics|
-	7.1 Setting the Filetype .............. |quicktask-adv-filetype|
-8. Known Issues ............................... |quicktask-known-issues|
+5. Using Snips ................................ |quicktask-using-snips|
+6. Options .................................... |quicktask-options|
+7. Organizing Tasks ........................... |quicktask-organizing-tasks|
+8. Advanced Topics ............................ |quicktask-advanced-topics|
+	8.1 Setting the Filetype .............. |quicktask-adv-filetype|
+9. Known Issues ............................... |quicktask-known-issues|
 
 ===============================================================================
 1. Introduction					*quicktask-introduction*
@@ -148,7 +149,38 @@ through the mnemonic of entering a stamp "at" a particular time.
 			[13:45]
 <
 ===============================================================================
-5. Options					*quicktask-options*
+5. Using Snips					*quicktask-using-snips*
+
+Snips are a way for you to attach freeform information to task entries.  
+Fundamentally snips are text files, but there is no limitation to what formats 
+the files can be saved in, although support for arbitrary formats is still 
+shaky at the time of this writing (version 1.1).
+
+Snips are attached to tasks with a special snip note that looks like: >
+	* [$: 1234121212-task-name]
+<
+The first part of the name is a timestamp to ensure that the name is unique 
+and the second part is taken from the text of the current task so that the 
+file names hopefully have some contextual meaning outside of the Quicktask 
+file itself.
+
+To start using snips, you must first configure the path to where you want your 
+snips to be saved. Do this by configuring g:quicktask_snip_path in your 
+.vimrc. The path must be absolute! For example, it might be: >
+	let g:quicktask_snip_path = '~/snips'
+	let g:quicktask_snip_path = 'c:\snips'
+<
+When you open or begin a new Quicktask file, Quicktask will check to see if 
+the directory exists and if it doesn't, it will ask you if you would like it 
+to be created.
+
+To add a new snip to a task, simply press <Leader>tS (with a capital "S"). The 
+snip note is added to the current task and the file is opened for editing.  
+There are a variety of options available for how that process is handled; see 
+|quicktask-options| below.
+
+===============================================================================
+6. Options					*quicktask-options*
 
 Quicktask only has one option at the moment.
 
@@ -164,8 +196,39 @@ g:quicktask_autosave				*g:quicktask_autosave*
 		If the current list file is not saved somewhere, the autosave 
 		will silently fail! Keep that in mind.
 
+g:quicktask_snip_path				*g:quicktask_snip_path*
+		You must configure this option in order to use snips (see 
+		|quicktask-using-snips|). The option must be set to an 
+		absolute path on disk where you would like your snip files to 
+		be saved. For the moment, all snips from all Quicktask lists 
+		are stored in the same location.
+
+g:quicktask_snip_win_maximize			*g:quicktask_snip_win_maximize*
+		If set to 1, the snip window will be opened at full size. The 
+		default is 0.
+
+g:quicktask_snip_win_height			*g:quicktask_snip_win_height*
+		If set to any numeric value, the snip window will open with 
+		the number of lines or columns given. Note that if 
+		|g:quicktask_snip_win_maximize| is set, this option will have 
+		no effect.
+
+g:quicktask_snip_default_filetype
+					    *g:quicktask_snip_default_filetype*
+		Set this option to the filetype that snips should be created 
+		as. If you do not specify a filetype, "text" will be used. The 
+		default filetype is helpfully written into a modeline at the 
+		end of new snip files. Feel free to change it; Quicktask won't 
+		override you.
+
+g:quicktask_snip_win_split_direction	*g:quicktask_snip_win_split_direction*
+		This option tells Quicktask which way to split the window when 
+		you open or create a snip. The default is horizontal and the 
+		only valid option is "vertical." If you specify anything else, 
+		or leave it blank, the window will split horizontally.
+
 ===============================================================================
-6. Organizing Tasks				*quicktask-organizing-tasks*
+7. Organizing Tasks				*quicktask-organizing-tasks*
 
 The philosophy of Quicktask is to provide a simple and versatile feature set 
 that each user can apply in their own way. Although some of the formatting and 
@@ -189,9 +252,9 @@ There is no reason not to create any sections or project groupings you can
 imagine, including nested sections.
 
 ===============================================================================
-7. Advanced Topics				*quicktask-advanced-topics*
+8. Advanced Topics				*quicktask-advanced-topics*
 
-7.1 Setting the Filetype			*quicktask-adv-filetype*
+8.1 Setting the Filetype			*quicktask-adv-filetype*
 
 Quicktask is a filetype plugin (ftplugin), meaning that it is reliant on the 
 filetype of the current file in order to operate. The Quicktask filetype is 
@@ -214,7 +277,7 @@ This tells Vim that when opening a new file or reading in a new buffer, if the
 filename matches *.quicktask, set the filetype to quicktask (see |setf|).
 
 ===============================================================================
-8. Known Issues					*quicktask-known-issues*
+9. Known Issues					*quicktask-known-issues*
 
 Quicktask is a labor of love and a side project. As such, there are some 
 problems, and I know about most of them. So far, the issues haven't been so 
