@@ -220,7 +220,7 @@ function! s:FindNextSibling()
 	" line', beyond which we cannot search for siblings.
 	if indent > 0
 		let parent_indent = indent - &tabstop
-		let boundary_line = search('^\s\{'.parent_indent.'}[^ ]', 'nW')
+		let boundary_line = search('^\s\{0,'.parent_indent.'}[^ ]', 'nW')
 	else
 		" If we are at the lowest indent level, our boundary is the end of the 
 		" file.
