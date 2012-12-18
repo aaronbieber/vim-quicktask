@@ -497,9 +497,8 @@ function! s:CheckSnipsReadiness()
 		call s:EchoWarning("You cannot use snips because your snips path is not configured.")
 		return 0
 	elseif !isdirectory(g:quicktask_snip_path)
-			call s:EchoWarning("You cannot use snips because your snips path does not exist.")
-			return 0
-		endif
+		call s:EchoWarning("You cannot use snips because your snips path does not exist.")
+		return 0
 	endif
 
 	return 1
