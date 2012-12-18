@@ -78,21 +78,30 @@ if !exists("g:quicktask_snip_win_maximize")
 	let g:quicktask_snip_win_maximize = 0
 endif
 
-" Set up the snips path, if possible.
+" ============================================================================
+" EchoWarning(): Echo a warning message, in color! {{{1
+function! s:EchoWarning(message)
+	echohl WarningMsg
+	echo a:message
+	echohl None
+endfunction
+
+" ============================================================================
+" Configure snips if the user has configured the path. {{{1
 if exists("g:quicktask_snip_path")
 	" Should we create the directory?
 	if !isdirectory(g:quicktask_snip_path)
-		echo "Your snips directory, ".g:quicktask_snip_path." doesn't exist."
+		call s:EchoWarning("Your snips directory, ".g:quicktask_snip_path." doesn't exist.")
 		let ans = ''
 		while match(ans, '[YyNn]') < 0
-			echo "Create it? [Y/n] "
+			echo "Create it? [y/n] "
 			let ans = nr2char(getchar())
 		endwhile
 
 		if ans == 'y' || ans == 'Y'
-			call mkdir(g:quicktask_snip_path)
+			call mkdir(g:quicktask_snip_path, 'p')
 		elseif ans == 'n' || ans == 'N'
-			echo "You will not be able to create new snips or load existing snips."
+			echomsg "You will not be able to create new snips or load existing snips."
 		endif
 	endif
 
@@ -101,14 +110,6 @@ if exists("g:quicktask_snip_path")
 		let g:quicktask_snip_path = g:quicktask_snip_path.s:path_sep
 	endif
 endif
-
-" ============================================================================
-" EchoWarning(): Echo a warning message, in color! {{{1
-function! s:EchoWarning(message)
-	echohl WarningMsg
-	echo a:message
-	echohl None
-endfunction
 
 " ============================================================================
 " GetAnyIndent(): Get the indent of any line. {{{1
