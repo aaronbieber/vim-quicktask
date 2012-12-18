@@ -1,7 +1,7 @@
 " quicktask.vim: A lightweight task management plugin.
 "
 " Author:	Aaron Bieber
-" Version:	1.1
+" Version:	1.2
 " Date:		10 January 2012
 "
 " See the documentation in doc/quicktask.txt
@@ -20,7 +20,7 @@
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
 " Set all buffer-local settings: {{{1
-let s:version = '1.1'
+let s:version = '1.2'
 
 " ============================================================================
 " QTInit(): Initialize a new task list. {{{1

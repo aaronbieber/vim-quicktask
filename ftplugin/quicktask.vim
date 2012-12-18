@@ -1,7 +1,7 @@
 " quicktask.vim: A lightweight task management plugin.
 "
 " Author:	Aaron Bieber
-" Version:	1.1
+" Version:	1.2
 " Date:		10 January 2012
 "
 " See the documentation in doc/quicktask.txt
@@ -46,7 +46,7 @@ setlocal fillchars="fold: "
 setlocal foldtext=QTFoldText()
 
 " Script settings
-let s:version = '1.1'
+let s:version = '1.2'
 let s:one_indent = repeat(" ", &tabstop)
 
 if has('gui_win32')

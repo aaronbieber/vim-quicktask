@@ -1,7 +1,7 @@
 *quicktask.txt*	Lightweight task management plugin.
 
 	      QUICKTASK, THE LIGHTWEIGHT TASK MANAGEMENT PLUGIN
-				 VERSION 1.1
+				 VERSION 1.2
 
 1. Introduction ............................... |quicktask-introduction|
 2. Getting Started ............................ |quicktask-getting-started|
