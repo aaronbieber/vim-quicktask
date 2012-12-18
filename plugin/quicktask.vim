@@ -27,8 +27,6 @@ let s:version = '1.1'
 "
 " Create a new Quicktask file in a new buffer.
 function! QTInit()
-	echom "Filename: ".expand('%:p')
-	echom "Modified: ".&modified
 	if len(expand('%:p')) || &modified
 		execute "new"
 	endif
