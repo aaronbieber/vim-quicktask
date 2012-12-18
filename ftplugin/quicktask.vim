@@ -508,11 +508,31 @@ function! s:MoveTaskUp()
 endfunction
 
 " ============================================================================
+" CheckSnipsReadiness(): Check snips settings; can we use snips? {{{1
+function! s:CheckSnipsReadiness()
+	if !exists("g:quicktask_snip_path") || !len(g:quicktask_snip_path)
+		call s:EchoWarning("You cannot use snips because your snips path is not configured.")
+		return 0
+	elseif !isdirectory(g:quicktask_snip_path)
+			call s:EchoWarning("You cannot use snips because your snips path does not exist.")
+			return 0
+		endif
+	endif
+
+	return 1
+endfunction
+
+" ============================================================================
 " AddSnipToTask(): Add a new snip to a task as a note. {{{1
 "
 " Add a new snip (external note) to a task. This will be overhauled in 2.0 
 " when snips are in external files.
 function! s:AddSnipToTask()
+	" Make sure we are properly configured to use snips.
+	if !s:CheckSnipsReadiness()
+		return
+	endif
+
 	" If we are not on a task line right now, we need to search up for one.
 	call s:FindTaskStart(1)
 
@@ -573,30 +593,13 @@ function! s:AddSnipToTask()
 endfunction
 
 " ============================================================================
-" JumpToSnip(): Jump from a snip marker to the snip and back. {{{1
-"
-" Jump from a snip's GUID to the snip itself or back to the GUID marker. This 
-" will be deprecated when snips become external file references.
-function! s:JumpToSnip()
-	if match(getline('.'), '\v\[(Snip |-|\+)[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]') > -1
-		let snip_parts = matchlist(getline('.'), '\v\[(Snip |-|\+)([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\]')
-		let snip_prefix = snip_parts[1]
-		let snip_uuid = snip_parts[2]
-		if len(snip_prefix) && len(snip_uuid)
-			if snip_prefix == 'Snip '
-				call search('\v^\[\+'.snip_uuid.'\]')
-			elseif snip_prefix == '+' || snip_prefix == '-'
-				call search('\v\[Snip '.snip_uuid.'\]', 'w')
-			endif
-		else
-			echom "The snip could not be found."
-		endif
-	endif
-endfunction
-
-" ============================================================================
 " OpenSnip(): Open a snip file or reveal its buffer. {{{1
 function! OpenSnip()
+	" Make sure we are properly configured to use snips.
+	if !s:CheckSnipsReadiness()
+		return
+	endif
+
 	if match(getline('.'),  '\[\$:\s.\{-}]') > -1
 		let snip_parts = matchlist(getline('.'), '\[\$:\s\(.\{-}\)]')
 		if len(snip_parts) < 1
