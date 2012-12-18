@@ -603,7 +603,11 @@ endfunction
 " ConfigureSnipWindow(): Set up the options for the snip window. {{{1
 function! s:ConfigureSnipWindow()
 	if g:quicktask_snip_win_maximize
-		execute "resize"
+		if g:quicktask_snip_win_split_direction == 'vertical'
+			execute "vertical resize"
+		else
+			execute "resize"
+		endif
 	endif
 	execute "nnoremap <silent> <buffer> <ESC> :bdelete<CR>"
 endfunction
