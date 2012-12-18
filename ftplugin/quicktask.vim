@@ -78,21 +78,30 @@ if !exists("g:quicktask_snip_win_maximize")
 	let g:quicktask_snip_win_maximize = 0
 endif
 
-" Set up the snips path, if possible.
+" ============================================================================
+" EchoWarning(): Echo a warning message, in color! {{{1
+function! s:EchoWarning(message)
+	echohl WarningMsg
+	echo a:message
+	echohl None
+endfunction
+
+" ============================================================================
+" Configure snips if the user has configured the path. {{{1
 if exists("g:quicktask_snip_path")
 	" Should we create the directory?
 	if !isdirectory(g:quicktask_snip_path)
-		echo "Your snips directory, ".g:quicktask_snip_path." doesn't exist."
+		call s:EchoWarning("Your snips directory, ".g:quicktask_snip_path." doesn't exist.")
 		let ans = ''
 		while match(ans, '[YyNn]') < 0
-			echo "Create it? [Y/n] "
+			echo "Create it? [y/n] "
 			let ans = nr2char(getchar())
 		endwhile
 
 		if ans == 'y' || ans == 'Y'
-			call mkdir(g:quicktask_snip_path)
+			call mkdir(g:quicktask_snip_path, 'p')
 		elseif ans == 'n' || ans == 'N'
-			echo "You will not be able to create new snips or load existing snips."
+			echomsg "You will not be able to create new snips or load existing snips."
 		endif
 	endif
 
@@ -101,14 +110,6 @@ if exists("g:quicktask_snip_path")
 		let g:quicktask_snip_path = g:quicktask_snip_path.s:path_sep
 	endif
 endif
-
-" ============================================================================
-" EchoWarning(): Echo a warning message, in color! {{{1
-function! s:EchoWarning(message)
-	echohl WarningMsg
-	echo a:message
-	echohl None
-endfunction
 
 " ============================================================================
 " GetAnyIndent(): Get the indent of any line. {{{1
@@ -487,11 +488,31 @@ function! s:MoveTaskUp()
 endfunction
 
 " ============================================================================
+" CheckSnipsReadiness(): Check snips settings; can we use snips? {{{1
+function! s:CheckSnipsReadiness()
+	if !exists("g:quicktask_snip_path") || !len(g:quicktask_snip_path)
+		call s:EchoWarning("You cannot use snips because your snips path is not configured.")
+		return 0
+	elseif !isdirectory(g:quicktask_snip_path)
+			call s:EchoWarning("You cannot use snips because your snips path does not exist.")
+			return 0
+		endif
+	endif
+
+	return 1
+endfunction
+
+" ============================================================================
 " AddSnipToTask(): Add a new snip to a task as a note. {{{1
 "
 " Add a new snip (external note) to a task. This will be overhauled in 2.0 
 " when snips are in external files.
 function! s:AddSnipToTask()
+	" Make sure we are properly configured to use snips.
+	if !s:CheckSnipsReadiness()
+		return
+	endif
+
 	" If we are not on a task line right now, we need to search up for one.
 	call s:FindTaskStart(1)
 
@@ -552,30 +573,13 @@ function! s:AddSnipToTask()
 endfunction
 
 " ============================================================================
-" JumpToSnip(): Jump from a snip marker to the snip and back. {{{1
-"
-" Jump from a snip's GUID to the snip itself or back to the GUID marker. This 
-" will be deprecated when snips become external file references.
-function! s:JumpToSnip()
-	if match(getline('.'), '\v\[(Snip |-|\+)[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]') > -1
-		let snip_parts = matchlist(getline('.'), '\v\[(Snip |-|\+)([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\]')
-		let snip_prefix = snip_parts[1]
-		let snip_uuid = snip_parts[2]
-		if len(snip_prefix) && len(snip_uuid)
-			if snip_prefix == 'Snip '
-				call search('\v^\[\+'.snip_uuid.'\]')
-			elseif snip_prefix == '+' || snip_prefix == '-'
-				call search('\v\[Snip '.snip_uuid.'\]', 'w')
-			endif
-		else
-			echom "The snip could not be found."
-		endif
-	endif
-endfunction
-
-" ============================================================================
 " OpenSnip(): Open a snip file or reveal its buffer. {{{1
 function! OpenSnip()
+	" Make sure we are properly configured to use snips.
+	if !s:CheckSnipsReadiness()
+		return
+	endif
+
 	if match(getline('.'),  '\[\$:\s.\{-}]') > -1
 		let snip_parts = matchlist(getline('.'), '\[\$:\s\(.\{-}\)]')
 		if len(snip_parts) < 1

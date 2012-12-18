@@ -152,9 +152,8 @@ through the mnemonic of entering a stamp "at" a particular time.
 5. Using Snips					*quicktask-using-snips*
 
 Snips are a way for you to attach freeform information to task entries.  
-Fundamentally snips are text files, but there is no limitation to what formats 
-the files can be saved in, although support for arbitrary formats is still 
-shaky at the time of this writing (version 1.1).
+Fundamentally snips are text files, but there is no limitation to what 
+formats the files can be saved in.
 
 Snips are attached to tasks with a special snip note that looks like: >
 	* [$: 1234121212-task-name]
@@ -166,7 +165,8 @@ file itself.
 
 To start using snips, you must first configure the path to where you want your 
 snips to be saved. Do this by configuring g:quicktask_snip_path in your 
-.vimrc. The path must be absolute! For example, it might be: >
+.vimrc. The path must be absolute! For example, it might look like one of 
+these: >
 	let g:quicktask_snip_path = '~/snips'
 	let g:quicktask_snip_path = 'c:\snips'
 <
@@ -223,9 +223,9 @@ g:quicktask_snip_default_filetype
 
 g:quicktask_snip_win_split_direction	*g:quicktask_snip_win_split_direction*
 		This option tells Quicktask which way to split the window when 
-		you open or create a snip. The default is horizontal and the 
-		only valid option is "vertical." If you specify anything else, 
-		or leave it blank, the window will split horizontally.
+		you open or create a snip. The default is horizontal and the only 
+		other valid option is "vertical." If you specify anything else, or 
+		leave it blank, the window will split horizontally.
 
 ===============================================================================
 7. Organizing Tasks				*quicktask-organizing-tasks*
