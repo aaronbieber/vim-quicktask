@@ -89,6 +89,9 @@ endfunction
 " ============================================================================
 " Configure snips if the user has configured the path. {{{1
 if exists("g:quicktask_snip_path")
+	" Expand the path right now so we don't have to do it over and over.
+	let g:quicktask_snip_path = expand(g:quicktask_snip_path)
+
 	" Should we create the directory?
 	if !isdirectory(g:quicktask_snip_path)
 		call s:EchoWarning("Your snips directory, ".g:quicktask_snip_path." doesn't exist.")
