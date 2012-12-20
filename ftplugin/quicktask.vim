@@ -953,20 +953,20 @@ endfunction
 
 " ============================================================================
 " Key mappings {{{1
-nmap <Leader>tv :call <SID>SelectTask()<CR>
-nmap <Leader>tD :call <SID>TaskComplete()<CR>
-nmap <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
-nmap <Leader>tw :call <SID>ShowWatchedTasksOnly()<CR>
-nmap <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
-nmap <Leader>ts :call <SID>AddNextTimeToTask()<CR>
-nmap <Leader>tO :call <SID>AddTaskAbove()<CR>
-nmap <Leader>to :call <SID>AddTaskBelow()<CR>
-nmap <Leader>tc :call <SID>AddChildTask()<CR>
-nmap <Leader>tu :call <SID>MoveTaskUp()<CR>
-nmap <Leader>td :call <SID>MoveTaskDown()<CR>
-nmap <Leader>tS :call <SID>AddSnipToTask()<CR>
-nmap <Leader>tj :call <SID>JumpToSnip()<CR>
-nmap <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
+nmap <buffer> <Leader>tv :call <SID>SelectTask()<CR>
+nmap <buffer> <Leader>tD :call <SID>TaskComplete()<CR>
+nmap <buffer> <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
+nmap <buffer> <Leader>tw :call <SID>ShowWatchedTasksOnly()<CR>
+nmap <buffer> <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
+nmap <buffer> <Leader>ts :call <SID>AddNextTimeToTask()<CR>
+nmap <buffer> <Leader>tO :call <SID>AddTaskAbove()<CR>
+nmap <buffer> <Leader>to :call <SID>AddTaskBelow()<CR>
+nmap <buffer> <Leader>tc :call <SID>AddChildTask()<CR>
+nmap <buffer> <Leader>tu :call <SID>MoveTaskUp()<CR>
+nmap <buffer> <Leader>td :call <SID>MoveTaskDown()<CR>
+nmap <buffer> <Leader>tS :call <SID>AddSnipToTask()<CR>
+nmap <buffer> <Leader>tj :call <SID>JumpToSnip()<CR>
+nmap <buffer> <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
 " I don't know if this is rude.
 nnoremap <buffer> <CR> :call OpenSnip()<CR>
 
