@@ -6,17 +6,17 @@
 "
 " See the documentation in doc/quicktask.txt
 "
-" Quicktask is free software: you can redistribute it and/or modify it under 
-" the terms of the GNU General Public License as published by the Free 
-" Software Foundation, either version 3 of the License, or (at your option) 
+" Quicktask is free software: you can redistribute it and/or modify it under
+" the terms of the GNU General Public License as published by the Free
+" Software Foundation, either version 3 of the License, or (at your option)
 " any later version.
-" 
-" Quicktask is distributed in the hope that it will be useful, but WITHOUT ANY 
-" WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-" FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more 
+"
+" Quicktask is distributed in the hope that it will be useful, but WITHOUT ANY
+" WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+" FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 " details.
-" 
-" You should have received a copy of the GNU General Public License along with 
+"
+" You should have received a copy of the GNU General Public License along with
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
 " Compatibility option reset: {{{1
@@ -35,7 +35,7 @@ setlocal expandtab
 setlocal shiftwidth=2
 setlocal tabstop=2
 
-" Add the 'at' sign to the list of keyword characters so that our 
+" Add the 'at' sign to the list of keyword characters so that our
 " abbreviations may use it.
 setlocal iskeyword=@,@-@,48-57,_,192-255
 
@@ -117,7 +117,7 @@ endif
 " ============================================================================
 " GetAnyIndent(): Get the indent of any line. {{{1
 "
-" With the cursor on any line, return the indent level (the number of spaces 
+" With the cursor on any line, return the indent level (the number of spaces
 " at the beginning of the line, simply).
 function! s:GetAnyIndent()
 	" What is the indentation level of this task?
@@ -161,9 +161,9 @@ endfunction
 " ============================================================================
 " FindTaskEnd(): Find the end of the current task. {{{1
 "
-" Search forward for the end of the current task. If we do not start on a task 
-" line, we first search backwards for a task line. We then search forward for 
-" the first line that isn't a part of that task, which may be the next task, 
+" Search forward for the end of the current task. If we do not start on a task
+" line, we first search backwards for a task line. We then search forward for
+" the first line that isn't a part of that task, which may be the next task,
 " the next section, or the end of the file.
 function! s:FindTaskEnd(move)
 	" If we are not on a task line
@@ -183,7 +183,7 @@ function! s:FindTaskEnd(move)
 	endif
 
 	if a:move
-		" Move the cursor to the line immediately prior, which should be the 
+		" Move the cursor to the line immediately prior, which should be the
 		" last line of the task we are looking for.
 		call cursor(task_end_line-1, 0)
 	else
@@ -194,7 +194,7 @@ endfunction
 " ============================================================================
 " FindTaskParent(): Find the start line of the current task's parent. {{{1
 "
-" Get the indent level of the current task and, if non-zero, find the first 
+" Get the indent level of the current task and, if non-zero, find the first
 " line of the task that encloses this one (its 'parent').
 function! s:FindTaskParent()
 	call s:FindTaskStart(1)
@@ -212,21 +212,21 @@ endfunction!
 " ============================================================================
 " FindNextSibling(): Find the sibling task below the current task. {{{1
 "
-" Get the indent level of the current task and find a task below this one that 
-" has the same indent. If the current task is a child, only find siblings 
+" Get the indent level of the current task and find a task below this one that
+" has the same indent. If the current task is a child, only find siblings
 " within the same parent.
 function! s:FindNextSibling()
 	call s:FindTaskStart(1)
 	let indent = s:GetTaskIndent()
 
-	" If we might be a child, get the location of the next line 'below' our 
-	" indent level, such as our parent's next sibling. This is our 'boundary 
+	" If we might be a child, get the location of the next line 'below' our
+	" indent level, such as our parent's next sibling. This is our 'boundary
 	" line', beyond which we cannot search for siblings.
 	if indent > 0
 		let parent_indent = indent - &tabstop
 		let boundary_line = search('^\s\{0,'.parent_indent.'}[^ ]', 'nW')
 	else
-		" If we are at the lowest indent level, our boundary is the end of the 
+		" If we are at the lowest indent level, our boundary is the end of the
 		" file.
 		let boundary_line = line('$')
 	endif
@@ -237,19 +237,19 @@ endfunction
 " ============================================================================
 " FindPrevSibling(): Find the sibling task above the current task. {{{1
 "
-" Get the indent level of the current task and find a task above this one that 
-" has the same indent. If the current task is a child, only find siblings 
+" Get the indent level of the current task and find a task above this one that
+" has the same indent. If the current task is a child, only find siblings
 " within the same parent.
 function! s:FindPrevSibling()
 	call s:FindTaskStart(1)
 	let indent = s:GetTaskIndent()
 
-	" If we are a child of something, find the boundary at which we must stop 
+	" If we are a child of something, find the boundary at which we must stop
 	" searching. For backwards searching, this is our parent task's line.
 	if indent > 0
 		let boundary_line = s:FindTaskParent()
 	else
-		" If we are at the lowest indent level, our boundary is the beginning 
+		" If we are at the lowest indent level, our boundary is the beginning
 		" of the file.
 		let boundary_line = 1
 	endif
@@ -296,7 +296,7 @@ function! s:MakeSnipName()
 		endif
 	endif
 
-	" If we couldn't get an adequate string automatically, prompt the user for 
+	" If we couldn't get an adequate string automatically, prompt the user for
 	" one.
 	if !strlen(task_string)
 		echo "The task's name is not long enough or couldn't be found."
@@ -318,7 +318,7 @@ endfunction
 " ============================================================================
 " AddTask(after, indent): Add a task to the file. {{{1
 "
-" Add a 'skeleton' task to the file after the line given and at the indent 
+" Add a 'skeleton' task to the file after the line given and at the indent
 " level specified.
 function! s:AddTask(after, indent, move_cursor)
 	if a:indent > 0
@@ -353,14 +353,14 @@ function! s:AddTaskAbove()
 	let indent = s:GetTaskIndent()
 	" Append the new task above this line
 	let task_line_num = line('.')
-	
+
 	" Append the task, moving the cursor and starting insert
 	call s:AddTask(task_line_num-1, indent, 1)
 endfunction
 
 " ============================================================================
 " AddTaskBelow(): Add a task below the current task. {{{1
-" 
+"
 " Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
 	" We insert directly below sections.
@@ -443,18 +443,18 @@ function! s:MoveTaskUp()
 		return
 	endif
 
-	" Move the cursor to the task line that we are moving and get the line 
+	" Move the cursor to the task line that we are moving and get the line
 	" number and indent level.
 	call s:FindTaskStart(1)
 	let task_start = line('.')
 	let indent = s:GetTaskIndent()
 
-	" If we are a child of something, anything, make sure we don't try to move 
+	" If we are a child of something, anything, make sure we don't try to move
 	" our child task into another task.
 	if indent > 0
 		" __Find the task above us, that we would move beyond ("sibling").__
-		" Start the search in the first column because backwards search will 
-		" match on the current line if the match is prior to the cursor 
+		" Start the search in the first column because backwards search will
+		" match on the current line if the match is prior to the cursor
 		" position.
 		call cursor(task_start, 0)
 		let prev_sibling_line = search('^\s\{'.indent.'}-', 'bnW')
@@ -465,7 +465,7 @@ function! s:MoveTaskUp()
 		" Find the parent line.
 		let parent_line = search('^\s\{'.parent_indent.'}-', 'bnW')
 
-		" If the previous sibling is before the parent line in the file then 
+		" If the previous sibling is before the parent line in the file then
 		" we should not move this task! Display a warning and abort.
 		if parent_line > prev_sibling_line
 			call s:EchoWarning("You can't move a task out of its parent task; use normal delete/put to move it.")
@@ -507,7 +507,7 @@ endfunction
 " ============================================================================
 " AddSnipToTask(): Add a new snip to a task as a note. {{{1
 "
-" Add a new snip (external note) to a task. This will be overhauled in 2.0 
+" Add a new snip (external note) to a task. This will be overhauled in 2.0
 " when snips are in external files.
 function! s:AddSnipToTask()
 	" Make sure we are properly configured to use snips.
@@ -537,7 +537,7 @@ function! s:AddSnipToTask()
 				" Insert the snip above
 				let snip_line = current_line - 1
 				break
-			elseif match(getline(current_line), '\vAdded \[') > -1 || 
+			elseif match(getline(current_line), '\vAdded \[') > -1 ||
 				  \match(getline(current_line), '\vStart \[') > -1 ||
 				  \match(getline(current_line), '\v\[\$:') > -1
 
@@ -547,11 +547,11 @@ function! s:AddSnipToTask()
 			else
 				let snip_line = current_line - 1
 				break
-				" If it matches something else, like a plain note, insert the 
+				" If it matches something else, like a plain note, insert the
 				" snip above.
 			endif
 		else
-			" This is the line beyond the task; the line above is the one we 
+			" This is the line beyond the task; the line above is the one we
 			" want.
 			let snip_line = current_line - 1
 			break
@@ -687,7 +687,7 @@ function! s:AddStartTimeToTask(start, indent)
 
 	call append(a:start, physical_indent."* Start ".today." ".now)
 
-	" If the current line is a task line, we have to indent the start time. If 
+	" If the current line is a task line, we have to indent the start time. If
 	" not, then we don't.
 	"if match(getline('.'), '\v^\s*-') > -1
 	"	exe "normal! o\<Tab>* Start ".today." ".now."\<Esc>"
@@ -699,7 +699,7 @@ endfunction
 " ============================================================================
 " AddEndTimeToTask(): Add the end time to an existing start time. {{{1
 "
-" Called by AddNextTimeToTask() to append an end time to an existing start 
+" Called by AddNextTimeToTask() to append an end time to an existing start
 " time note.
 function! s:AddEndTimeToTask(start, indent)
 	" Place the cursor at the given start line.
@@ -717,7 +717,7 @@ endfunction
 " ============================================================================
 " TaskComplete(): Mark a task as complete (DONE). {{{1
 "
-" Mark a task as complete by placing a note at the very end of the task 
+" Mark a task as complete by placing a note at the very end of the task
 " containing the keyword DONE followed by the current timestamp.
 function! s:TaskComplete()
 	" If we are not on a task line right now, we need to search up for one.
@@ -730,9 +730,9 @@ function! s:TaskComplete()
 	" indent (the number of spaces in the user's tabstop).
 	let indent = indent + &tabstop
 
-	" Search downward, looking for either a reduction in the indentation level 
-	" or the end of the file. The first line to fail to match will be the line 
-	" AFTER our insertion point. Start searching on the line after the task 
+	" Search downward, looking for either a reduction in the indentation level
+	" or the end of the file. The first line to fail to match will be the line
+	" AFTER our insertion point. Start searching on the line after the task
 	" line.
 	let current_line = line('.') + 1
 	let matched = 0
@@ -750,7 +750,7 @@ function! s:TaskComplete()
 
 	" Create the timestamp.
 	let today = '['.strftime("%a %Y-%m-%d").']'
-	
+
 	" Save the contents of register 'a'.
 	" let old_a = @a
 	" Create the DONE line and save it in register 'a'.
@@ -766,7 +766,7 @@ endfunction
 " ============================================================================
 " SaveOnFocusLost(): Save the current file silently. {{{1
 "
-" This will be called by an autocommand to save the current task list file 
+" This will be called by an autocommand to save the current task list file
 " when focus is lost.
 function! s:SaveOnFocusLost()
 	if &filetype == "quicktask"
@@ -776,10 +776,10 @@ endfunction
 
 " ============================================================================
 " GetDatestamp(): Get a Quicktask-formatted datestamp. {{{1
-" 
-" Datestamps are used throughout Quicktask both for user convenience of 
-" tracking their tasks in the continuum of the universe immemorial and also to 
-" locate current tasks. GetDatestamp() returns a Quicktask-formatted 
+"
+" Datestamps are used throughout Quicktask both for user convenience of
+" tracking their tasks in the continuum of the universe immemorial and also to
+" locate current tasks. GetDatestamp() returns a Quicktask-formatted
 " datestamp for the requested time relative to 'now.'
 function! s:GetDatestamp(coordinate)
 	if a:coordinate == 'today'
@@ -799,8 +799,8 @@ endfunction
 " ============================================================================
 " GetTimestamp(): Get a Quicktask-formatted timestamp. {{{1
 "
-" Timestamps are used for the start and end times added to tasks and by the 
-" abbreviation system. GetTimestamp() returns a Quicktask-formatted timestamp 
+" Timestamps are used for the start and end times added to tasks and by the
+" abbreviation system. GetTimestamp() returns a Quicktask-formatted timestamp
 " for the current time.
 function! s:GetTimestamp()
 	return '['.strftime('%H:%M').']'
@@ -809,7 +809,7 @@ endfunction
 " ============================================================================
 " QTFoldLevel(): Returns the fold level of the current line. {{{1
 "
-" This is used by the Vim folding system to fold tasks based on their depth 
+" This is used by the Vim folding system to fold tasks based on their depth
 " and relationship to one another.
 function! QTFoldLevel(linenum)
 	let pre_indent = indent(a:linenum-1) / &tabstop
@@ -879,8 +879,8 @@ endfunction
 " ============================================================================
 " QTFoldText(): Provide the text displayed on a fold when closed. {{{1
 "
-" This is used by the Vim folding system to find the text to display on fold 
-" headings when folds are closed. We use this to cause the headings to display 
+" This is used by the Vim folding system to find the text to display on fold
+" headings when folds are closed. We use this to cause the headings to display
 " in an indented fashion matching the tasks themselves.
 function! QTFoldText()
 	let lines = v:foldend - v:foldstart + 1
@@ -891,7 +891,7 @@ endfunction
 " ============================================================================
 " CloseFoldIfOpen(): Quietly close a fold only if it is open. {{{1
 "
-" This is used when automatically opening and closing folded tasks based on 
+" This is used when automatically opening and closing folded tasks based on
 " their status.
 function! CloseFoldIfOpen()
 	if foldclosed(line('.')) == -1
@@ -902,7 +902,7 @@ endfunction
 " ============================================================================
 " OpenFoldIfClosed(): Quietly open a fold only if it is closed. {{{1
 "
-" This is used when automatically opening and closing folded tasks based on 
+" This is used when automatically opening and closing folded tasks based on
 " their status.
 function! OpenFoldIfClosed()
 	if foldclosed(line('.')) > -1
@@ -913,7 +913,7 @@ endfunction
 " ============================================================================
 " ShowActiveTasksOnly(): Fold all completed tasks. {{{1
 "
-" The net result is that only incomplete (active) tasks remain open and 
+" The net result is that only incomplete (active) tasks remain open and
 " visible in the list.
 function! s:ShowActiveTasksOnly()
 	let current_line = line('.')
@@ -931,7 +931,7 @@ endfunction
 " ============================================================================
 " ShowWatchedTasksOnly(): Fold all except watched tasks. {{{1
 "
-" The net result is that only tasks that you are watching (containing "WATCH" 
+" The net result is that only tasks that you are watching (containing "WATCH"
 " remain open and visible in the list.
 function! s:ShowWatchedTasksOnly()
 	let current_line = line('.')
@@ -943,9 +943,9 @@ endfunction
 " ============================================================================
 " FindIncompleteTimestamps(): Execute a search for incomplete timestamps. {{{1
 "
-" This function only sets the forward search pattern. It is called from a 
-" command that forces hlsearch to "on", which has the effect of highlighting 
-" any timestamp notes that have start times and no end times (presumably 
+" This function only sets the forward search pattern. It is called from a
+" command that forces hlsearch to "on", which has the effect of highlighting
+" any timestamp notes that have start times and no end times (presumably
 " beceause you forgot to end them or they are still pending).
 function! s:FindIncompleteTimestamps()
 	let @/ = '\*\sStart\s\[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\]$'

@@ -11,16 +11,16 @@ Quicktask is designed to be deployed as a Pathogen (or Vundle, etc.) bundle. Typ
 If you do not use Git to manage your Vim configuration, you can simply clone the repository into your `bundles` folder:
 
 ```
-$ cd ~/.vim  
+$ cd ~/.vim
 $ git clone https://github.com/aaronbieber/quicktask.git bundles/quicktask
 ```
 
 If you *do* use Git to manage your Vim configuration and you want to add Quicktask as a submodule, you would instead run these commands:
 
 ```
-$ cd ~/.vim  
-$ git submodule add https://github.com/aaronbieber/quicktask.git bundles/quicktask  
-$ git submodule init  
+$ cd ~/.vim
+$ git submodule add https://github.com/aaronbieber/quicktask.git bundles/quicktask
+$ git submodule init
 $ git submodule update
 ```
 
