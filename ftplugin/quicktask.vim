@@ -90,7 +90,7 @@ endfunction
 " Configure snips if the user has configured the path. {{{1
 if exists("g:quicktask_snip_path")
 	" Should we create the directory?
-	if !isdirectory(g:quicktask_snip_path)
+	if !isdirectory(expand(g:quicktask_snip_path))
 		call s:EchoWarning("Your snips directory, ".g:quicktask_snip_path." doesn't exist.")
 		let ans = ''
 		while match(ans, '[YyNn]') < 0
