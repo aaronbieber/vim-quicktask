@@ -36,12 +36,19 @@ syn case ignore
 " Sections, tasks, and notes (the building blocks of any list)
 syn match	quicktaskSection		'^.*:\s*$'
 									\ contains=quicktaskMarker,@Spell
+
 syn match	quicktaskTask			'^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
-syn match	quicktaskNote			'^\(\s*\)[*].\{-}\n\%(\1\s\s[^*].\{-}\n\)*'
+
+syn match	quicktaskNoteCont		/^\s\+[^-* ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
 									\ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
 									\ quicktaskIncomplete
+
+syn match	quicktaskNote			/^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
+									\ contains=quicktaskNoteCont,quicktaskMarker,quicktaskTicket,@Spell,
+									\ quicktaskConstant, quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
+									\ quicktaskSnip, quicktaskIncomplete
 
 " Highlight keywords in todo items and notes:
 " TODO, FIXME, NOTE, WTF are self-explanatory.
@@ -74,6 +81,7 @@ syn match	quicktaskComment		"#.*" contains=@Spell
 hi def link quicktaskSection		Title
 hi def link quicktaskTask			Normal
 hi def link quicktaskNote			Comment
+hi def link quicktaskNoteCont		Comment
 hi def link quicktaskDone			Constant
 hi def link quicktaskMarker			Todo
 hi def link quicktaskComment		Comment
