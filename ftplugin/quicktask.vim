@@ -826,6 +826,58 @@ function! QTFoldLevel(linenum)
 endfunction
 
 " ============================================================================
+" AddNote(): Add / Edit a note to a task. {{{1
+"
+" Add a 'skeleton' note to the task or edit the existing note.
+function! s:AddNoteToTask()
+  " If we are not on a task line right now, we need to search up for one.
+  call s:FindTaskStart(1)
+
+  " What is the indentation level of this task?
+  let indent = s:GetTaskIndent()
+
+  " The indent we want to find is the tasks's indent plus one.
+  let indent = indent + &tabstop
+
+  let physical_indent = repeat(" ", indent)
+  let note_line = physical_indent . '* Note'
+
+  " Search downward, looking for existing note or beginning of Added note
+  let current_line = line('.')
+  let note_exists = 0
+  while current_line <= line('$')
+    " If this line is a note.
+    if match(getline(current_line), '\v^\s*\*') > -1
+      " If this line is an Added note.
+      if match(getline(current_line), '\vAdded \[') > -1
+        " Move to line before this, it being the task title or existing note.
+        let current_line = current_line - 1
+        break
+      " If this line is a user note
+      else
+        let note_exists = 1
+        let current_line = current_line + 1
+      endif
+    else
+      let current_line = current_line + 1
+    endif
+  endwhile
+
+  if !note_exists
+    " Add the note to current task and move the cursor to the note
+    call append(current_line, [ note_line ])
+    call cursor(current_line + 1, 0)
+  else
+    " Note already exists, no need to add note_line, just move the cursor to
+    " the line just before Added note.
+    call cursor(current_line, 0)
+  endif
+
+  " Switch to insert mode to edit the note
+  startinsert!
+endfunction
+
+" ============================================================================
 " GetEpoch, GetDuration, GetTimes, PrintDuration, FormatDate, FormatDateWord {{{1
 "
 " These functions are unused at this time.
@@ -961,6 +1013,7 @@ nmap <buffer> <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
 nmap <buffer> <Leader>ts :call <SID>AddNextTimeToTask()<CR>
 nmap <buffer> <Leader>tO :call <SID>AddTaskAbove()<CR>
 nmap <buffer> <Leader>to :call <SID>AddTaskBelow()<CR>
+nmap <buffer> <Leader>tn :call <SID>AddNoteToTask()<CR>
 nmap <buffer> <Leader>tc :call <SID>AddChildTask()<CR>
 nmap <buffer> <Leader>tu :call <SID>MoveTaskUp()<CR>
 nmap <buffer> <Leader>td :call <SID>MoveTaskDown()<CR>
