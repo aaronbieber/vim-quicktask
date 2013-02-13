@@ -329,7 +329,7 @@ function! s:AddTask(after, indent, move_cursor)
 
 	" Compose the two lines to insert
 	let task_line = physical_indent . "- "
-	let date_line = physical_indent . s:one_indent . "* Added [".strftime("%a %Y-%m-%d")."]"
+	let date_line = physical_indent . s:one_indent . "@ Added [".strftime("%a %Y-%m-%d")."]"
 	call append(a:after, [ task_line, date_line ])
 
 	if a:move_cursor
@@ -642,8 +642,12 @@ function! s:AddNextTimeToTask()
 				call s:AddStartTimeToTask(current_line-1, indent)
 				let matched = 1
 				break
-			" If this line is a note, we have more checking to do.
+			" If this line is a Note, skip over it.
 			elseif match(getline(current_line), '\v^\s*\*') > -1
+				let current_line = current_line + 1
+				continue
+			" If this line is an Added/Start line, we have more checking to do.
+			elseif match(getline(current_line), '\v^\s*\@') > -1
 				if match(getline(current_line), '\vAdded \[') > -1
 					" We skip over the Added line if it exists.
 					let current_line = current_line + 1
@@ -685,14 +689,14 @@ function! s:AddStartTimeToTask(start, indent)
 	let today = '['.strftime("%a %Y-%m-%d").']'
 	let now = '['.strftime("%H:%M").']'
 
-	call append(a:start, physical_indent."* Start ".today." ".now)
+	call append(a:start, physical_indent."@ Start ".today." ".now)
 
 	" If the current line is a task line, we have to indent the start time. If
 	" not, then we don't.
 	"if match(getline('.'), '\v^\s*-') > -1
-	"	exe "normal! o\<Tab>* Start ".today." ".now."\<Esc>"
+	"	exe "normal! o\<Tab>@ Start ".today." ".now."\<Esc>"
 	"else
-	"	exe "normal! o* Start ".today." ".now."\<Esc>"
+	"	exe "normal! o@ Start ".today." ".now."\<Esc>"
 	"endif
 endfunction
 
@@ -749,7 +753,7 @@ function! s:TaskComplete()
 	endwhile
 
 	" Create the timestamp.
-	let today = '['.strftime("%a %Y-%m-%d").']'
+	let today = s:GetDatestamp('today')
 
 	" Save the contents of register 'a'.
 	" let old_a = @a
@@ -757,7 +761,7 @@ function! s:TaskComplete()
 	" let @a = physical_indent.s:one_indent."* DONE ".today
 	" Insert the DONE line.
 	let physical_indent = repeat(" ", indent)
-	call append(start, physical_indent."* DONE ".today)
+	call append(start, physical_indent."@ DONE ".today)
 	"exe "normal! o\<Esc>\"aP"
 	" Restore the value of register 'a'.
 	"let @a = old_a
@@ -850,6 +854,11 @@ function! s:AddNoteToTask()
 		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
 			" If this line is a sub-task, we have reached our location.
 			if match(getline(current_line), '\v^\s*-') > -1
+				let current_line = current_line - 1
+				break
+			" If this line is an Added/Start line, we have reached our 
+			" location.
+			elseif match(getline(current_line), '\v^\s*\@') > -1
 				let current_line = current_line - 1
 				break
 			" If this line is a note, keep looking.

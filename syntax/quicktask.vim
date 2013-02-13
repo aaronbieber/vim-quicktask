@@ -40,7 +40,7 @@ syn match	quicktaskSection		'^.*:\s*$'
 syn match	quicktaskTask			'^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
 
-syn match	quicktaskNoteCont		/^\s\+[^-* ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
+syn match	quicktaskNoteCont		/^\s\+[^-*@ ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
 									\ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
 									\ quicktaskIncomplete
@@ -49,6 +49,14 @@ syn match	quicktaskNote			/^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
 									\ contains=quicktaskNoteCont,quicktaskMarker,quicktaskTicket,@Spell,
 									\ quicktaskConstant, quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
 									\ quicktaskSnip, quicktaskIncomplete
+
+syn match	quicktaskTimeNote		/^\s\+[@]\s\(Added\|Start\).*$/ 
+									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
+									\ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+									\ quicktaskIncomplete
+
+" The following items are case-sensitive.
+syn case match
 
 " Highlight keywords in todo items and notes:
 " TODO, FIXME, NOTE, WTF are self-explanatory.
@@ -65,14 +73,14 @@ syn match	quicktaskIncomplete		display '\* Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\
 " JIRA tickets, e.g. PROJECTNAME-1234
 syn match	quicktaskTicket			display '\C[A-Z]\+-[0-9]\+'
 
-" Snips (not currently supported in the official release)
+" The remainder of items are case-insensitive.
+syn case ignore
+
+" Snips
 syn match	quicktaskSnip			display '\[\$:\s.\{-}]'
 
-
 syn match	quicktaskConstant		'\<[~yn]\>'
-syn keyword	quicktaskConstant		true True TRUE false False FALSE
-syn keyword	quicktaskConstant		yes Yes YES no No NO not Not NOT shall Shall SHALL
-syn keyword	quicktaskConstant		null Null NULL nil Nil NIL
+syn keyword	quicktaskConstant		true false yes no not shall null nil
 
 " 'Real' comments (not often used)
 syn match	quicktaskComment		"#.*" contains=@Spell
@@ -80,14 +88,15 @@ syn match	quicktaskComment		"#.*" contains=@Spell
 " Highlight links
 hi def link quicktaskSection		Title
 hi def link quicktaskTask			Normal
-hi def link quicktaskNote			Comment
-hi def link quicktaskNoteCont		Comment
+hi def link quicktaskNote			String
+hi def link quicktaskNoteCont		String
 hi def link quicktaskDone			Constant
 hi def link quicktaskMarker			Todo
 hi def link quicktaskComment		Comment
 hi def link quicktaskSnip			Number
-hi def link quicktaskDatestamp		Special
-hi def link quicktaskTimestamp		Special
+hi def link quicktaskTimeNote		Comment
+hi def link quicktaskDatestamp		Number
+hi def link quicktaskTimestamp		Number
 hi def link quicktaskConstant		Constant
 hi def link quicktaskIncomplete		Error
 hi def link quicktaskTicket			Special

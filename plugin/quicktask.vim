@@ -35,7 +35,7 @@ function! QTInit()
 							\'',
 							\'CURRENT TASKS:',
 							\'  - My first task.',
-							\'    * Added ['.strftime("%a %Y-%m-%d").']',
+							\'    @ Added ['.strftime("%a %Y-%m-%d").']',
 							\'COMPLETED TASKS:',
 							\'',
 							\'# vim:ft=quicktask']
