@@ -826,55 +826,52 @@ function! QTFoldLevel(linenum)
 endfunction
 
 " ============================================================================
-" AddNote(): Add / Edit a note to a task. {{{1
+" AddNoteToTask(): Add a new note to a task. {{{1
 "
-" Add a 'skeleton' note to the task or edit the existing note.
+" Add a new note to the task.
 function! s:AddNoteToTask()
-  " If we are not on a task line right now, we need to search up for one.
-  call s:FindTaskStart(1)
+	" If we are not on a task line right now, we need to search up for one.
+	call s:FindTaskStart(1)
 
-  " What is the indentation level of this task?
-  let indent = s:GetTaskIndent()
+	" What is the indentation level of this task?
+	let indent = s:GetTaskIndent()
 
-  " The indent we want to find is the tasks's indent plus one.
-  let indent = indent + &tabstop
+	" The indent we want to find is the tasks's indent plus one.
+	let indent = indent + &tabstop
 
-  let physical_indent = repeat(" ", indent)
-  let note_line = physical_indent . '* Note'
+	let physical_indent = repeat(" ", indent)
+	let note_line = physical_indent . '* '
 
-  " Search downward, looking for existing note or beginning of Added note
-  let current_line = line('.')
-  let note_exists = 0
-  while current_line <= line('$')
-    " If this line is a note.
-    if match(getline(current_line), '\v^\s*\*') > -1
-      " If this line is an Added note.
-      if match(getline(current_line), '\vAdded \[') > -1
-        " Move to line before this, it being the task title or existing note.
-        let current_line = current_line - 1
-        break
-      " If this line is a user note
-      else
-        let note_exists = 1
-        let current_line = current_line + 1
-      endif
-    else
-      let current_line = current_line + 1
-    endif
-  endwhile
+	" Search downward, looking for existing note or beginning of Added note
+	let current_line = line('.') + 1
 
-  if !note_exists
-    " Add the note to current task and move the cursor to the note
-    call append(current_line, [ note_line ])
-    call cursor(current_line + 1, 0)
-  else
-    " Note already exists, no need to add note_line, just move the cursor to
-    " the line just before Added note.
-    call cursor(current_line, 0)
-  endif
+	while current_line <= line('$')
+		" If we are still at the correct indent level
+		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
+			" If this line is a sub-task, we have reached our location.
+			if match(getline(current_line), '\v^\s*-') > -1
+				let current_line = current_line - 1
+				break
+			" If this line is a note, keep looking.
+			elseif match(getline(current_line), '\v^\s*\*') > -1
+				let current_line = current_line + 1
+				continue
+			endif
+		else
+			" We have reached the end of the task; we have arrived.
+			let current_line = current_line - 1
+			break
+		endif
 
-  " Switch to insert mode to edit the note
-  startinsert!
+		let current_line = current_line + 1
+	endwhile
+
+	" Add the note to current task and move the cursor to the note
+	call append(current_line, [note_line])
+	call cursor(current_line + 1, indent + 3)
+
+	" Switch to insert mode to edit the note
+	startinsert!
 endfunction
 
 " ============================================================================
