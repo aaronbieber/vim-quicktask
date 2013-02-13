@@ -840,11 +840,11 @@ function! s:AddNoteToTask()
 	let indent = indent + &tabstop
 
 	let physical_indent = repeat(" ", indent)
-	let note_line = physical_indent . '* '
+	let note_line = physical_indent . '* Note'
 
 	" Search downward, looking for existing note or beginning of Added note
 	let current_line = line('.') + 1
-
+  let note_exists = 0
 	while current_line <= line('$')
 		" If we are still at the correct indent level
 		if match(getline(current_line), '\v^\s{'.indent.'}') > -1
@@ -854,8 +854,15 @@ function! s:AddNoteToTask()
 				break
 			" If this line is a note, keep looking.
 			elseif match(getline(current_line), '\v^\s*\*') > -1
-				let current_line = current_line + 1
-				continue
+        if match(getline(current_line), '\vAdded \[') > -1
+          " Move to line before this, it being the task title or existing note.
+          let current_line = current_line - 1
+          break
+        else
+          let note_exists = 1
+          let current_line = current_line + 1
+          continue
+        endif
 			endif
 		else
 			" We have reached the end of the task; we have arrived.
@@ -867,11 +874,15 @@ function! s:AddNoteToTask()
 	endwhile
 
 	" Add the note to current task and move the cursor to the note
-	call append(current_line, [note_line])
-	call cursor(current_line + 1, indent + 3)
-
-	" Switch to insert mode to edit the note
-	startinsert!
+  if !note_exists
+    call append(current_line, [note_line])
+    call cursor(current_line + 1, indent + 3)
+    " Select the word Note and enter select mode so it can be changed by typing
+    normal! viw
+  else
+    call cursor(current_line, 0)
+    startinsert!
+  endif
 endfunction
 
 " ============================================================================
