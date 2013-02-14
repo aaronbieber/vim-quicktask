@@ -60,6 +60,10 @@ if !exists("g:quicktask_autosave")
 	let g:quicktask_autosave = 0
 endif
 
+if !exists("g:quicktask_added_time")
+  let g:quicktask_added_time = 0
+endif
+
 if !exists("g:quicktask_snip_win_height")
 	let g:quicktask_snip_win_height = ''
 endif
@@ -329,7 +333,14 @@ function! s:AddTask(after, indent, move_cursor)
 
 	" Compose the two lines to insert
 	let task_line = physical_indent . "- "
-	let date_line = physical_indent . s:one_indent . "* Added [".strftime("%a %Y-%m-%d")."]"
+
+  if g:quicktask_added_time
+    let timestamp = strftime("%a %Y-%m-%d %H:%M")
+  else
+    let timestamp = strftime("%a %Y-%m-%d")
+  endif
+
+	let date_line = physical_indent . s:one_indent . "* Added [".timestamp."]"
 	call append(a:after, [ task_line, date_line ])
 
 	if a:move_cursor
