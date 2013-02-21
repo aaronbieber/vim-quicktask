@@ -60,6 +60,10 @@ if !exists("g:quicktask_autosave")
 	let g:quicktask_autosave = 0
 endif
 
+if !exists("g:quicktask_added_time")
+  let g:quicktask_added_time = 0
+endif
+
 if !exists("g:quicktask_snip_win_height")
 	let g:quicktask_snip_win_height = ''
 endif
@@ -329,7 +333,14 @@ function! s:AddTask(after, indent, move_cursor)
 
 	" Compose the two lines to insert
 	let task_line = physical_indent . "- "
-	let date_line = physical_indent . s:one_indent . "@ Added [".strftime("%a %Y-%m-%d")."]"
+
+  if g:quicktask_added_time
+    let timestamp = GetDatestamp('today') + GetTimestamp()
+  else
+    let timestamp = GetDatestamp('today')
+  endif
+
+	let date_line = physical_indent . s:one_indent . "* Added [".timestamp."]"
 	call append(a:after, [ task_line, date_line ])
 
 	if a:move_cursor
@@ -686,8 +697,8 @@ function! s:AddStartTimeToTask(start, indent)
 	let physical_indent = repeat(" ", a:indent)
 
 	" Get the timestamp string.
-	let today = '['.strftime("%a %Y-%m-%d").']'
-	let now = '['.strftime("%H:%M").']'
+	let today = s:GetDatestamp('today')
+	let now = s:GetTimestamp()
 
 	call append(a:start, physical_indent."@ Start ".today." ".now)
 
@@ -714,7 +725,7 @@ function! s:AddEndTimeToTask(start, indent)
 	endif
 
 	" Now insert the end time.
-	let now = '['.strftime("%H:%M").']'
+	let now = s:GetTimestamp()
 	exe "normal! A, end ".now."\<Esc>"
 endfunction
 
