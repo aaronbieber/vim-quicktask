@@ -335,9 +335,9 @@ function! s:AddTask(after, indent, move_cursor)
 	let task_line = physical_indent . "- "
 
   if g:quicktask_added_time
-    let timestamp = strftime("%a %Y-%m-%d %H:%M")
+    let timestamp = GetDatestamp('today') + GetTimestamp()
   else
-    let timestamp = strftime("%a %Y-%m-%d")
+    let timestamp = GetDatestamp('today')
   endif
 
 	let date_line = physical_indent . s:one_indent . "* Added [".timestamp."]"
@@ -693,8 +693,8 @@ function! s:AddStartTimeToTask(start, indent)
 	let physical_indent = repeat(" ", a:indent)
 
 	" Get the timestamp string.
-	let today = '['.strftime("%a %Y-%m-%d").']'
-	let now = '['.strftime("%H:%M").']'
+	let today = GetDatestamp('today')
+	let now = GetTimestamp()
 
 	call append(a:start, physical_indent."* Start ".today." ".now)
 
@@ -721,7 +721,7 @@ function! s:AddEndTimeToTask(start, indent)
 	endif
 
 	" Now insert the end time.
-	let now = '['.strftime("%H:%M").']'
+	let now = GetTimestamp()
 	exe "normal! A, end ".now."\<Esc>"
 endfunction
 
@@ -760,7 +760,7 @@ function! s:TaskComplete()
 	endwhile
 
 	" Create the timestamp.
-	let today = '['.strftime("%a %Y-%m-%d").']'
+	let today = GetDatestamp('today')
 
 	" Save the contents of register 'a'.
 	" let old_a = @a
