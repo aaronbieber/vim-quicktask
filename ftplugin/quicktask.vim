@@ -179,7 +179,7 @@ function! s:FindTaskEnd(move)
 		" start/end notes and record them. Begin on the line immediately
 		" following the task line.
 
-		let task_end_line = search('^\s\{0,'.indent.'}[^ ]', 'nW')
+		let task_end_line = search('^\($\|\s\{0,'.indent.'}[^ ]\)', 'nW')
 	endif
 
 	if a:move
