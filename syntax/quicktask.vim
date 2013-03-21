@@ -50,7 +50,7 @@ syn match	quicktaskNote			/^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
 									\ quicktaskConstant, quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
 									\ quicktaskSnip, quicktaskIncomplete
 
-syn match	quicktaskTimeNote		/^\s\+[@]\s\(Added\|Start\).*$/ 
+syn match	quicktaskTimeNote		/^\s\+[@]\s\(Added\|Start\|DONE\).*$/
 									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
 									\ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
 									\ quicktaskIncomplete
@@ -67,7 +67,7 @@ syn keyword	quicktaskDone			contained DONE WATCH HELD
 " Dates and times
 syn match	quicktaskDatestamp		display '\[... \d\d\d\d-\d\d-\d\d\( \d\d:\d\d\)\?\]'
 syn match	quicktaskTimestamp		'\[\d\d:\d\d\]'
-syn match	quicktaskIncomplete		display '\* Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\],\@!'hs=s+25
+syn match	quicktaskIncomplete		display '@ Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\],\@!'hs=s+25
 									\ contains=quicktaskDatestamp
 
 " JIRA tickets, e.g. PROJECTNAME-1234
