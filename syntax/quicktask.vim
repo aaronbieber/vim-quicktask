@@ -65,7 +65,7 @@ syn keyword	quicktaskMarker			contained TODO FIXME NOTE ENH WTF AFB ???
 syn keyword	quicktaskDone			contained DONE WATCH HELD
 
 " Dates and times
-syn match	quicktaskDatestamp		display '\[... \d\d\d\d-\d\d-\d\d\]'
+syn match	quicktaskDatestamp		display '\[... \d\d\d\d-\d\d-\d\d\( \d\d:\d\d\)\?\]'
 syn match	quicktaskTimestamp		'\[\d\d:\d\d\]'
 syn match	quicktaskIncomplete		display '@ Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\],\@!'hs=s+25
 									\ contains=quicktaskDatestamp
