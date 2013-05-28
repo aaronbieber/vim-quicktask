@@ -1022,21 +1022,21 @@ endfunction
 
 " ============================================================================
 " Key mappings {{{1
-nmap <buffer> <Leader>tv :call <SID>SelectTask()<CR>
-nmap <buffer> <Leader>tD :call <SID>TaskComplete()<CR>
-nmap <buffer> <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
-nmap <buffer> <Leader>tw :call <SID>ShowWatchedTasksOnly()<CR>
-nmap <buffer> <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
-nmap <buffer> <Leader>ts :call <SID>AddNextTimeToTask()<CR>
-nmap <buffer> <Leader>tO :call <SID>AddTaskAbove()<CR>
-nmap <buffer> <Leader>to :call <SID>AddTaskBelow()<CR>
-nmap <buffer> <Leader>tn :call <SID>AddNoteToTask()<CR>
-nmap <buffer> <Leader>tc :call <SID>AddChildTask()<CR>
-nmap <buffer> <Leader>tu :call <SID>MoveTaskUp()<CR>
-nmap <buffer> <Leader>td :call <SID>MoveTaskDown()<CR>
-nmap <buffer> <Leader>tS :call <SID>AddSnipToTask()<CR>
-nmap <buffer> <Leader>tj :call <SID>JumpToSnip()<CR>
-nmap <buffer> <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
+nnoremap <buffer> <Leader>tv :call <SID>SelectTask()<CR>
+nnoremap <buffer> <Leader>tD :call <SID>TaskComplete()<CR>
+nnoremap <buffer> <Leader>ta :call <SID>ShowActiveTasksOnly()<CR>
+nnoremap <buffer> <Leader>tw :call <SID>ShowWatchedTasksOnly()<CR>
+nnoremap <buffer> <Leader>ty :call <SID>ShowTodayTasksOnly()<CR>
+nnoremap <buffer> <Leader>ts :call <SID>AddNextTimeToTask()<CR>
+nnoremap <buffer> <Leader>tO :call <SID>AddTaskAbove()<CR>
+nnoremap <buffer> <Leader>to :call <SID>AddTaskBelow()<CR>
+nnoremap <buffer> <Leader>tn :call <SID>AddNoteToTask()<CR>
+nnoremap <buffer> <Leader>tc :call <SID>AddChildTask()<CR>
+nnoremap <buffer> <Leader>tu :call <SID>MoveTaskUp()<CR>
+nnoremap <buffer> <Leader>td :call <SID>MoveTaskDown()<CR>
+nnoremap <buffer> <Leader>tS :call <SID>AddSnipToTask()<CR>
+nnoremap <buffer> <Leader>tj :call <SID>JumpToSnip()<CR>
+nnoremap <buffer> <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
 " I don't know if this is rude.
 nnoremap <buffer> <CR> :call OpenSnip()<CR>
 
