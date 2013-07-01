@@ -344,7 +344,7 @@ endfunction
 " Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
 	" We don't support inserting a task above a section.
-	if getline('.') =~ ':$'
+  if getline('.') =~ ':$' && getline('.') !~ '^\s*-'
 		call s:EchoWarning("Inserting a task above a section isn't supported.")
 		return
 	endif
@@ -364,7 +364,7 @@ endfunction
 " Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
 	" We insert directly below sections.
-	if getline('.') =~ ':$'
+	if getline('.') =~ ':$' && getline('.') !~ '^\s*-'
 		let indent = s:GetAnyIndent() + &tabstop
 		let task_line_num = line('.')
 	else
