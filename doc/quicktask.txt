@@ -79,6 +79,12 @@ which is short for "task."
 <Leader>tc	Insert a new child task (mnemonic: "task child") at the end of
 		the current task.
 
+<Leader>tn	Insert a new note to the current task.
+
+<Leader>tS	Insert a new snip to the current task. The snip note is added
+		to the current task and the file is opened for editing. For
+		more information on snips, see |quicktask-using-snips|.
+
 <Leader>ts	Add start or end time stamps to the current task (mnemonic:
 		"timestamp", "task start", or "time start"). A new note will
 		be added to the current task with today's date and a timestamp
@@ -181,8 +187,6 @@ There are a variety of options available for how that process is handled; see
 
 ===============================================================================
 6. Options					*quicktask-options*
-
-Quicktask only has one option at the moment.
 
 g:quicktask_autosave				*g:quicktask_autosave*
 		If set to true (a non-zero number, such as 1), Quicktask will
