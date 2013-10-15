@@ -1024,7 +1024,6 @@ nnoremap <buffer> <Leader>tc :call <SID>AddChildTask()<CR>
 nnoremap <buffer> <Leader>tu :call <SID>MoveTaskUp()<CR>
 nnoremap <buffer> <Leader>td :call <SID>MoveTaskDown()<CR>
 nnoremap <buffer> <Leader>tS :call <SID>AddSnipToTask()<CR>
-nnoremap <buffer> <Leader>tj :call <SID>JumpToSnip()<CR>
 nnoremap <buffer> <Leader>tfi :call <SID>FindIncompleteTimestamps()<CR>:silent set hlsearch \| echo<CR>
 " I don't know if this is rude.
 nnoremap <buffer> <CR> :call OpenSnip()<CR>
