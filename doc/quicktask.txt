@@ -182,8 +182,6 @@ There are a variety of options available for how that process is handled; see
 ===============================================================================
 6. Options					*quicktask-options*
 
-Quicktask only has one option at the moment.
-
 g:quicktask_autosave				*g:quicktask_autosave*
 		If set to true (a non-zero number, such as 1), Quicktask will
 		attempt to save the current list file when the window loses
