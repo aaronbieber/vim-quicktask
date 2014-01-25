@@ -1,21 +1,32 @@
-*quicktask.txt*	Lightweight task management plugin.
+*quicktask.txt* Lightweight task management for humans.
 
-	      QUICKTASK, THE LIGHTWEIGHT TASK MANAGEMENT PLUGIN
-				 VERSION 1.2
+         ,,qoOOoq,                       d"8'                        d"8'
+       88"'      8.          .8r        8'8"    d8                  8'8"
+     888         8l ,,  ,,  ,,   ,,,   88"   ,,88,,  ,, ,,   ,,,   88"
+    888         88 88  88  88  88" d" 88o"'8  88  88"  88  88 d"  88o"'8
+    888       o88 88  88  88  88     88 88"  88  88   88  ,'"88  88 88"  ,
+     88   "88""  88od"88od88d 88oo,d88  88od 88oOl8od 88o"8o o8 88  88od"
+      "'oooo8l    ""   ""       ""  "'   "'   ""  ""   "   ""'  "'   "'
+            l8,..
+             ""'
+
+              QUICKTASK, THE LIGHTWEIGHT TASK MANAGEMENT PLUGIN
+                                 VERSION 1.4
 
 1. Introduction ............................... |quicktask-introduction|
 2. Getting Started ............................ |quicktask-getting-started|
-3. Keyboard Shortcuts ......................... |quicktask-keyboard-shortcuts|
+3. Mappings ................................... |quicktask-mappings|
 4. Abbreviations .............................. |quicktask-abbreviations|
-5. Using Snips ................................ |quicktask-using-snips|
-6. Options .................................... |quicktask-options|
-7. Organizing Tasks ........................... |quicktask-organizing-tasks|
+5. Organizing Tasks ........................... |quicktask-organizing-tasks|
+6. Using Snips ................................ |quicktask-snips|
+7. Options .................................... |quicktask-options|
 8. Advanced Topics ............................ |quicktask-advanced-topics|
-	8.1 Setting the Filetype .............. |quicktask-adv-filetype|
+    8.1 Setting the Filetype .................. |quicktask-adv-filetype|
+    8.2 Customizing Mappings .................. |quicktask-adv-mappings|
 9. Known Issues ............................... |quicktask-known-issues|
 
 ===============================================================================
-1. Introduction					*quicktask-introduction*
+1. Introduction                                 *quicktask-introduction*
 
 Quicktask is inspired in no small part by Eric Talevich's "todolist" syntax
 highlighting scheme. Though some of the concepts and syntax patterns are
@@ -27,36 +38,57 @@ Quicktask is not org-mode, nor is it a fully-featured personal information
 manager. You will get the most out of Quicktask if your work is broken into
 distinct assignments that have relatively simple definitions.
 
+The goal of Quicktask is to give you an essential set of tools for building
+lists of items that are both easy to organize and manipulate within the
+plug-in but also legible and usable as plain text, similar to the goals of the
+Markdown or Textile syntaxes.
+
 ===============================================================================
-2. Getting Started				*quicktask-getting-started*
+2. Getting Started                              *quicktask-getting-started*
 
 The first thing you will want to do is create a new Quicktask file. Open a
 fresh Vim instance and call the command QTInit (you would type :QTInit<CR>).
 If you run this command in a Vim instance with a file open in the current
-buffer, a new buffer will be split and the Quicktask file will be created
-there.
+buffer, a new buffer will be opened in a split window and the Quicktask file
+will be created there.
 
 You will be greeted with a very barebones task list with two sections,
 "current tasks" and "completed tasks," as well as a single "starter" task.
 
-The layout of a Quicktask file is straightforward:
+The layout of a Quicktask file is straightforward. Below is a sample of a
+Quicktask list containing all of the annotation types. >
+    CURRENT TASKS:
+      - My first task.
+        @ Added [Sat 2014-01-25]
+        @ Start [Sat 2014-01-25] [15:57], end [16:34]
+      - My second task.
+        $ 20140125155737-my-second-task
+        * Note to self: complete this task.
+        @ Added [Sat 2014-01-25]
+<
+SECTIONS OR PROJECTS
+    End in a colon and are expected to contain tasks. Sections may contain
+    other sections and can be in mixed case, the only restriction is that they
+    must start with a letter or number and end with a colon.
 
-Sections or Projects					*quicktask-sections*
-		End in a colon and are expected to contain tasks. Example: >
-			CURRENT TASKS:
-<
-Tasks							*quicktask-tasks*
-		Begin with a hyphen followed by a space, and may have "notes"
-		or other tasks nested beneath them. Example: >
-			CURRENT TASKS:
-			  - A task
-			    * A note
-			    - A second task
-<
-Notes							*quicktask-notes*
-		Begin with an asterisk and usually appear within tasks, though
-		they are not required to.  See the example above,
-		|quicktask-tasks|.
+TASKS
+    Begin with a hyphen followed by a space, and may have "notes" or other
+    tasks nested beneath them.
+
+NOTES
+    Begin with an asterisk and usually appear within tasks, though they are
+    not required to.
+
+TIME AND DATE MARKERS
+    Quicktask, by default, will record the added date for each new task.
+    Time-tracking items in Quicktask begin with an "at" symbol. It is possible
+    to disable the automatic recording of added date, see |quicktask-options|.
+
+SNIPS
+    A snip reference is an anchor to an external file containing more details.
+    Snip references begin with a dollar sign and should only contain the snip
+    ID itself, as generated by Quicktask. This is explained further in the
+    section |quicktask-snips|.
 
 The hierarchy of information is expressed through indentation and the
 indentation has semantic meaning to Quicktask. For example, you can move tasks
@@ -64,77 +96,79 @@ up and down among their peers, expand and collapse tasks to hide or reveal all
 of their sub-tasks, and so on.
 
 ===============================================================================
-3. Keyboard Shortcuts				*quicktask-keyboard-shortcuts*
+3. Mappings                                     *quicktask-mappings*
 
 Nearly all of Quicktask's functionality is exposed through keyboard shortcuts
 (or "mappings" in Vim parlance). All Quicktask mappings begin with <Leader>t
-which is short for "task."
+which is short for "task." This section describes the default mappings; these
+mappings are configurable and that configuration is covered in
+|quicktask-advanced-topics|.
 
-<Leader>to	Insert a new task below the current task (similar to how
-		typing "o" in Normal mode inserts on the next line).
+<Leader>to      Insert a new task below the current task (similar to how
+                typing "o" in Normal mode inserts on the next line).
 
-<Leader>tO	Insert a new task above the current task (similar to how
-		typing "O" in Normal mode inserts on the previous line).
+<Leader>tO      Insert a new task above the current task (similar to how
+                typing "O" in Normal mode inserts on the previous line).
 
-<Leader>tc	Insert a new child task (mnemonic: "task child") at the end of
-		the current task.
+<Leader>tc      Insert a new child task (mnemonic: "task child") at the end of
+                the current task.
 
-<Leader>tn	Insert a new note to the current task.
+<Leader>tn      Insert a new note to the current task.
 
-<Leader>tS	Insert a new snip to the current task. The snip note is added
-		to the current task and the file is opened for editing. For
-		more information on snips, see |quicktask-using-snips|.
+<Leader>tS      Insert a new snip to the current task. The snip ID is added to
+                the current task and the file is opened for editing. For more
+                information on snips, see |quicktask-snips|.
 
-<Leader>ts	Add start or end time stamps to the current task (mnemonic:
-		"timestamp", "task start", or "time start"). A new note will
-		be added to the current task with today's date and a timestamp
-		reading "Start." If there is already a note with a start time,
-		an end time will be added to it. If there is already a
-		complete start and end item, a new one will be added. By
-		pressing <Leader>ts repeatedly, you can log the start and stop
-		progress of a task.
+<Leader>ts      Add start or end time stamps to the current task (mnemonic:
+                "timestamp", "task start", or "time start"). A new time
+                annotation will be added to the current task with today's date
+                and a timestamp reading "Start." If there is already an
+                annotation with a start time, an end time will be added to it.
+                If there is already a complete start and end item, a new one
+                will be added. By pressing <Leader>ts repeatedly, you can log
+                the start and stop progress of a task.
 
-<Leader>tu	Move the current task up (mnemonic: "task up"). Tasks can only
-		be moved up and down among sibling tasks, so they will not
-		move between sections (projects).
+<Leader>tu      Move the current task up (mnemonic: "task up"). Tasks can only
+                be moved up and down among sibling tasks, so they will not
+                move between sections (projects).
 
-<Leader>td	Move the current task down (mnemonic: "task down"). Tasks can
-		only be moved up and down among sibling tasks, so they will
-		not move between sections (projects).
+<Leader>td      Move the current task down (mnemonic: "task down"). Tasks can
+                only be moved up and down among sibling tasks, so they will
+                not move between sections (projects).
 
-<Leader>tD	Mark a task as "done." This adds a new "note" line at the end
-		of the task with the "DONE" keyword and a timestamp. It is
-		important to keep in mind that the "DONE" keyword has meaning
-		to Quicktask.
+<Leader>tD      Mark a task as "done." This adds a new "note" line at the end
+                of the task with the "DONE" keyword and a timestamp. It is
+                important to keep in mind that the "DONE" keyword has meaning
+                to Quicktask (read on for details).
 
-<Leader>ta	Show (unfold) active tasks only. This has the effect of
-		closing all of the folds in your task list and only expanding
-		the ones that do not have a "DONE" keyword in them (and their
-		parents). If an incomplete task has completed child tasks,
-		only the completed child tasks will be folded. The goal is to
-		instantly present a filtered view of active items that need
-		attention.
+<Leader>ta      Show (unfold) active tasks only. This has the effect of
+                folding up all of the tasks in your task list and only
+                expanding the ones that do not have a "DONE" keyword in them
+                (and their parents). If an incomplete task has completed child
+                tasks, only the completed child tasks will be folded. The goal
+                is to instantly present a filtered view of active items that
+                need attention.
 
-<Leader>ty	Show (unfold) tasks containing today's date. This mapping only
-		works when you have used the Quicktask date stamp format for
-		the date, as it is a pattern-based match. This would unfold
-		items that were added OR completed today.
+<Leader>ty      Show (unfold) tasks containing today's date. This mapping only
+                works when you have used the Quicktask date stamp format for
+                the date, as it is a pattern-based match. This would unfold
+                items that were added OR completed today.
 
-<Leader>tv	Visually select the current task. This allows you to very
-		quickly use Vim's own yank/delete/put commands to move tasks
-		around to other sections or copy them to the system clipboard,
-		etc.
+<Leader>tv      Visually select the current task. This allows you to very
+                quickly use Vim's own yank/delete/put commands to move tasks
+                around to other sections or copy them to the system clipboard,
+                etc.
 
-<Leader>tfi	Find incomplete timestamps (mnemonic: "task find incomplete").
-		This mapping actually performs a search for progress lines
-		(inserted with <Leader>ts) that have a start time but no end
-		time (presumed to be "incomplete"), which may not result in a
-		visible change to the buffer, though it WILL force search
-		highlighting to be turned on (see |hlsearch|). You can then
-		use "n" and "N" to navigate among the found lines.
+<Leader>tfi     Find incomplete timestamps (mnemonic: "task find incomplete").
+                This mapping actually performs a search for progress lines
+                (inserted with <Leader>ts) that have a start time but no end
+                time (presumed to be "incomplete"), which may not result in a
+                visible change to the buffer, though it WILL force search
+                highlighting to be turned on (see |hlsearch|). You can then
+                use "n" and "N" to navigate among the found lines.
 
 ===============================================================================
-4. Abbreviations				*quicktask-abbreviations*
+4. Abbreviations                                *quicktask-abbreviations*
 
 Abbreviations in Vim are used to replace a string with another while entering
 text. Quicktask uses Insert-mode abbreviations to provide an easy way to add
@@ -142,97 +176,30 @@ datestamps and timestamps to your task lists. The following abbreviations are
 available (for information on how to use abbreviations, see |abbreviations| in
 the Vim manual). All dates are inserted in the Quicktask standard datestamp
 format, e.g.: >
-	[Wed 2012-01-18]
+        [Wed 2012-01-18]
 <
 All abbreviations begin with the at ("@") symbol, which is remembered easily
 through the mnemonic of entering a stamp "at" a particular time.
 
-@today		Inserts today's date.
-@tomorrow	Inserts tomorrow's date.
-@yesterday	Inserts yesterday's date.
-@nextweek	Inserts the date exactly seven days from today.
-@now		Inserts the current time, e.g. >
-			[13:45]
+@today          Inserts today's date.
+@tomorrow       Inserts tomorrow's date.
+@yesterday      Inserts yesterday's date.
+@nextweek       Inserts the date exactly seven days from today.
+@now            Inserts the current time, e.g. >
+                        [13:45]
 <
-===============================================================================
-5. Using Snips					*quicktask-using-snips*
 
-Snips are a way for you to attach freeform information to task entries.
-Fundamentally snips are text files, but there is no limitation to what
-formats the files can be saved in.
+Bear in mind that this feature uses Vim's built-in "abbreviate" command and as
+such these abbreviations are only expanded when you enter a space, a
+punctuation character, or press <ESC> to leave insert mode.
 
-Snips are attached to tasks with a special snip note that looks like: >
-	* [$: 1234121212-task-name]
-<
-The first part of the name is a timestamp to ensure that the name is unique
-and the second part is taken from the text of the current task so that the
-file names hopefully have some contextual meaning outside of the Quicktask
-file itself.
-
-To start using snips, you must first configure the path to where you want your
-snips to be saved. Do this by configuring g:quicktask_snip_path in your
-.vimrc. The path must be absolute! For example, it might look like one of
-these: >
-	let g:quicktask_snip_path = '~/snips'
-	let g:quicktask_snip_path = 'c:\snips'
-<
-When you open or begin a new Quicktask file, Quicktask will check to see if
-the directory exists and if it doesn't, it will ask you if you would like it
-to be created.
-
-To add a new snip to a task, simply press <Leader>tS (with a capital "S"). The
-snip note is added to the current task and the file is opened for editing.
-There are a variety of options available for how that process is handled; see
-|quicktask-options| below.
+Note also that all of Quicktask's time and date features are implemented using
+Vim's strftime() function, which makes system library calls that are not
+portable; your mileage may vary, though results should be as expected on
+nearly all modern systems.
 
 ===============================================================================
-6. Options					*quicktask-options*
-
-g:quicktask_autosave				*g:quicktask_autosave*
-		If set to true (a non-zero number, such as 1), Quicktask will
-		attempt to save the current list file when the window loses
-		focus or you switch buffers.  This only works in Vim editors
-		that respond to the BufLeave or FocusLost events (to my
-		knowledge, FocusLost is supported by the graphical variants of
-		Vim and BufLeave is supported by all Vims). >
-			let g:quicktask_autosave = 1
-<
-		If the current list file is not saved somewhere, the autosave
-		will silently fail! Keep that in mind.
-
-g:quicktask_snip_path				*g:quicktask_snip_path*
-		You must configure this option in order to use snips (see
-		|quicktask-using-snips|). The option must be set to an
-		absolute path on disk where you would like your snip files to
-		be saved. For the moment, all snips from all Quicktask lists
-		are stored in the same location.
-
-g:quicktask_snip_win_maximize			*g:quicktask_snip_win_maximize*
-		If set to 1, the snip window will be opened at full size. The
-		default is 0.
-
-g:quicktask_snip_win_height			*g:quicktask_snip_win_height*
-		If set to any numeric value, the snip window will open with
-		the number of lines or columns given. Note that if
-		|g:quicktask_snip_win_maximize| is set, this option will have
-		no effect.
-
-g:quicktask_snip_default_filetype
-					    *g:quicktask_snip_default_filetype*
-		Set this option to the filetype that snips should be created
-		as. If you do not specify a filetype, "text" will be used. The
-		default filetype is helpfully written into a modeline at the
-		end of new snip files. Feel free to change it; Quicktask won't
-		override you.
-
-g:quicktask_snip_win_split_direction	*g:quicktask_snip_win_split_direction*
-		This option tells Quicktask which way to split the window when
-		you open or create a snip. The default is horizontal and the only
-		other valid option is "vertical." If you specify anything else, or
-		leave it blank, the window will split horizontally.
-
-===============================================================================
-7. Organizing Tasks				*quicktask-organizing-tasks*
+5. Organizing Tasks                             *quicktask-organizing-tasks*
 
 The philosophy of Quicktask is to provide a simple and versatile feature set
 that each user can apply in their own way. Although some of the formatting and
@@ -256,9 +223,91 @@ There is no reason not to create any sections or project groupings you can
 imagine, including nested sections.
 
 ===============================================================================
-8. Advanced Topics				*quicktask-advanced-topics*
+6. Using Snips                                  *quicktask-snips*
 
-8.1 Setting the Filetype			*quicktask-adv-filetype*
+Snips are a way for you to attach freeform information to task entries.
+Fundamentally snips are text files, but there is no limitation to what
+formats the files can be saved in.
+
+Snips are attached to tasks with a special snip annotation that looks like: >
+    $ 1234121212-task-name
+<
+The first part of the name is a timestamp to ensure that the name is unique
+and the second part is taken from the text of the current task so that the
+file names hopefully have some contextual meaning outside of the Quicktask
+file itself.
+
+To start using snips, you must first configure the path to where you want your
+snips to be saved. Do this by configuring `g:quicktask_snip_path` in your
+.vimrc. The path must be absolute! For example, it might look like one of
+these: >
+    let g:quicktask_snip_path = '~/snips'
+    let g:quicktask_snip_path = 'c:\snips'
+<
+When you open or begin a new Quicktask file, Quicktask will check to see if
+the directory exists and if it doesn't, it will ask you if you would like it
+to be created.
+
+To add a new snip to a task, simply press <Leader>tS (with a capital "S"). The
+snip annotation is added to the current task and the file is opened for
+editing.  There are a variety of options available for how that process is
+handled; see |quicktask-options| below.
+
+To open a snip, place your cursor anywhere on the snip's ID line and press
+<CR>. This mapping is customizable, see |quicktask-adv-mappings|.
+
+===============================================================================
+7. Options                                      *quicktask-options*
+
+g:quicktask_no_mappings                         *g:quicktask_no_mappings*
+    Do not create keyboard mappings. This will make Quicktask very tedious and
+    annoying to use, so you should create your own mappings. See
+    |quicktask-advanced-topics| for more on this.
+
+g:quicktask_autosave                            *g:quicktask_autosave*
+    If set to true (a non-zero number, such as 1), Quicktask will attempt to
+    save the current task list file when the window loses focus or you switch
+    buffers. This only works in Vim editors that respond to the BufLeave or
+    FocusLost events (to my knowledge, FocusLost is supported by the graphical
+    variants of Vim and BufLeave is supported by all Vims). >
+            let g:quicktask_autosave = 1
+<
+    If the current list file is not saved somewhere, the autosave will
+    silently fail! Keep that in mind.
+
+g:quicktask_snip_path                           *g:quicktask_snip_path*
+    You MUST configure this option in order to use snips (see
+    |quicktask-snips|). The option must be set to an absolute path on disk
+    where you would like your snip files to be saved. For the moment, all
+    snips from all Quicktask lists are stored in the same location.
+
+g:quicktask_snip_win_maximize                   *g:quicktask_snip_win_maximize*
+    If set to 1, the snip window will be opened at full size. The default is
+    0. If this option is set to 1, it overrides the behavior of
+    |g:quicktask_snip_win_height|.
+
+g:quicktask_snip_win_height                     *g:quicktask_snip_win_height*
+    If set to any numeric value, the snip window will open with the number of
+    lines or columns given. Note that if |g:quicktask_snip_win_maximize| is
+    set to 1, this option will have no effect.
+
+g:quicktask_snip_default_filetype
+                                            *g:quicktask_snip_default_filetype*
+    Set this option to the filetype that snips should be created as. If you do
+    not specify a filetype, "markdown" will be used.  The default filetype is
+    helpfully written into a modeline at the end of new snip files. Feel free
+    to change it; Quicktask won't override you.
+
+g:quicktask_snip_win_split_direction    *g:quicktask_snip_win_split_direction*
+    This option tells Quicktask which way to split the window when you open or
+    create a snip. The default is horizontal and the only other valid option
+    is "vertical." If you specify anything else, or leave it blank, the window
+    will split horizontally.
+
+===============================================================================
+8. Advanced Topics                              *quicktask-advanced-topics*
+
+8.1 Setting the Filetype                        *quicktask-adv-filetype*
 
 Quicktask is a filetype plugin (ftplugin), meaning that it is reliant on the
 filetype of the current file in order to operate. The Quicktask filetype is
@@ -275,20 +324,54 @@ autocommand (see |autocommand|).
 
 For example, to make all files named *.quicktask open as Quicktask files, add
 this line to your .vimrc: >
-	autocmd BufNewFile,BufRead *.quicktask setf quicktask
+        autocmd BufNewFile,BufRead *.quicktask setf quicktask
 >
 This tells Vim that when opening a new file or reading in a new buffer, if the
 filename matches *.quicktask, set the filetype to quicktask (see |setf|).
 
+8.2 Customizing Mappings                        *quicktask-adv-mappings*
+
+Quicktask exposes its mappings using the <Plug> prefix, which makes them
+impossible to type on your keyboard. Those un-typable mappings are then
+re-mapped to actual keystrokes if the |g:quicktask_no_mappings| option is not
+turned on (the default). If you'd like to create your own mappings for
+Quicktask commands, enable the |g:quicktask_no_mappings| setting and then
+re-map all of your desired commands. The commands to accomplish that would
+look like this: >
+
+    let g:quicktask_no_mappings = 1
+
+    nmap <unique> <Leader>tv  <Plug>SelectTask
+    nmap <unique> <Leader>tD  <Plug>TaskComplete
+    nmap <unique> <Leader>ta  <Plug>ShowActiveTasksOnly
+    nmap <unique> <Leader>tw  <Plug>ShowWatchedTasksOnly
+    nmap <unique> <Leader>ty  <Plug>ShowTodayTasksOnly
+    nmap <unique> <Leader>ts  <Plug>AddNextTimeToTask
+    nmap <unique> <Leader>tO  <Plug>AddTaskAbove
+    nmap <unique> <Leader>to  <Plug>AddTaskBelow
+    nmap <unique> <Leader>tn  <Plug>AddNoteToTask
+    nmap <unique> <Leader>tc  <Plug>AddChildTask
+    nmap <unique> <Leader>tu  <Plug>MoveTaskUp
+    nmap <unique> <Leader>td  <Plug>MoveTaskDown
+    nmap <unique> <Leader>tS  <Plug>AddSnipToTask
+    nmap <unique> <Leader>tfi <Plug>FindIncompleteTimestamps
+    nmap          <CR>        <Plug>OpenSnipUnderCursor
+<
+
+The <unique> switch simply ensures that the mapping doesn't already exist and
+is optional. The behavior of each <Plug> mapping should be evident from its
+name, or you can look up the keystrokes above in the |quicktask-mappings|
+section of this document.
+
 ===============================================================================
-9. Known Issues					*quicktask-known-issues*
+9. Known Issues                                 *quicktask-known-issues*
 
 Quicktask is a labor of love and a side project. As such, there are some
 problems, and I know about most of them. So far, the issues haven't been so
 great as to stop me from using Quicktask long enough to fix them, but...
 
 If you want to take a stab at it, by all means, send me a pull request on
-Github (http://github.com/aaronbieber/quicktask.git) or get in touch with me
-directly via e-mail at aaron 'at' aaronbieber.com.
+Github (http://github.com/aaronbieber/vim-quicktask.git) or get in touch with
+me directly via e-mail at aaron 'at' aaronbieber.com.
 
-vim:tw=78:ts=8:ft=help:norl:
+vim:et:tw=78:ts=4:sw=4:ft=help:norl:

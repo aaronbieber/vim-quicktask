@@ -1,8 +1,8 @@
 " quicktask.vim: A lightweight task management plugin.
 "
-" Author:	Aaron Bieber
-" Version:	1.2
-" Date:		10 January 2012
+" Author:   Aaron Bieber
+" Version:  1.4
+" Date:     25 January 2014
 "
 " This syntax file was based upon the work of Eric Talevich in his
 " "todolist" syntax format. Though many patterns have been re-worked, Eric's
@@ -34,26 +34,27 @@ set cpo&vim
 syn case ignore
 
 " Sections, tasks, and notes (the building blocks of any list)
-syn match	quicktaskSection		'^.*:\s*$'
-									\ contains=quicktaskMarker,@Spell
+syn match   quicktaskSection        '^.*:\s*$'
+                                    \ contains=quicktaskMarker,@Spell
 
-syn match	quicktaskTask			'^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
-									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
+syn match   quicktaskTask           '^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
+                                    \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
+                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
 
-syn match	quicktaskNoteCont		/^\s\+[^-*@ ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
-									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-									\ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
-									\ quicktaskIncomplete
+syn match   quicktaskNoteCont       /^\s\+[^-*@ ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
+                                    \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
+                                    \ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+                                    \ quicktaskIncomplete
 
-syn match	quicktaskNote			/^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
-									\ contains=quicktaskNoteCont,quicktaskMarker,quicktaskTicket,@Spell,
-									\ quicktaskConstant, quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
-									\ quicktaskSnip, quicktaskIncomplete
+syn match   quicktaskNote           /^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
+                                    \ contains=quicktaskNoteCont,quicktaskMarker,quicktaskTicket,@Spell,
+                                    \ quicktaskConstant, quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
+                                    \ quicktaskSnip, quicktaskIncomplete
 
-syn match	quicktaskTimeNote		/^\s\+[@]\s\(Added\|Start\|DONE\).*$/
-									\ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-									\ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
-									\ quicktaskIncomplete
+syn match   quicktaskTimeNote       /^\s\+[@]\s\(Added\|Start\|DONE\).*$/
+                                    \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
+                                    \ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+                                    \ quicktaskIncomplete
 
 " The following items are case-sensitive.
 syn case match
@@ -61,45 +62,46 @@ syn case match
 " Highlight keywords in todo items and notes:
 " TODO, FIXME, NOTE, WTF are self-explanatory.
 " AFB = Awaiting Feedback, ENH = Enhancement
-syn keyword	quicktaskMarker			contained TODO FIXME NOTE ENH WTF AFB ???
-syn keyword	quicktaskDone			contained DONE WATCH HELD
+syn keyword quicktaskMarker         contained TODO FIXME NOTE ENH WTF AFB ???
+syn keyword quicktaskDone           contained DONE WATCH HELD
 
 " Dates and times
-syn match	quicktaskDatestamp		display '\[... \d\d\d\d-\d\d-\d\d\]'
-syn match	quicktaskTimestamp		'\[\d\d:\d\d\]'
-syn match	quicktaskIncomplete		display '@ Start \[\w\w\w\s\d\d\d\d-\d\d-\d\d\]\s\[\d\d:\d\d\],\@!'hs=s+25
-									\ contains=quicktaskDatestamp
+syn match   quicktaskDatestamp      display '\[... \d\+-\d\+-\d\+\( \d\+:\d\+\)\?\]'
+syn match   quicktaskTimestamp      display '\[\d\d:\d\d\]'
+syn match   quicktaskIncomplete     display '@ Start \[... \d\+-\d\+-\d\+\] \[\d\+:\d\+\],\@!'hs=s+25
+                                    \ contains=quicktaskDatestamp
 
 " JIRA tickets, e.g. PROJECTNAME-1234
-syn match	quicktaskTicket			display '\C[A-Z]\+-[0-9]\+'
+syn match   quicktaskTicket         display '\C[A-Z]\+-[0-9]\+'
 
 " The remainder of items are case-insensitive.
 syn case ignore
 
 " Snips
-syn match	quicktaskSnip			display '\[\$:\s.\{-}]'
+syn match   quicktaskSnip           display '^\s\+[$]\s[A-Za-z0-9-]\+$'
+" '\[\$:\s.\{-}]'
 
-syn match	quicktaskConstant		'\<[~yn]\>'
-syn keyword	quicktaskConstant		true false yes no not shall null nil
+syn match   quicktaskConstant       '\<[~yn]\>'
+syn keyword quicktaskConstant       true false yes no not shall null nil
 
 " 'Real' comments (not often used)
-syn match	quicktaskComment		"#.*" contains=@Spell
+syn match   quicktaskComment        "#.*"
 
 " Highlight links
-hi def link quicktaskSection		Title
-hi def link quicktaskTask			Normal
-hi def link quicktaskNote			String
-hi def link quicktaskNoteCont		String
-hi def link quicktaskDone			Constant
-hi def link quicktaskMarker			Todo
-hi def link quicktaskComment		Comment
-hi def link quicktaskSnip			Number
-hi def link quicktaskTimeNote		Comment
-hi def link quicktaskDatestamp		Number
-hi def link quicktaskTimestamp		Number
-hi def link quicktaskConstant		Constant
-hi def link quicktaskIncomplete		Error
-hi def link quicktaskTicket			Special
+hi def link quicktaskSection        Title
+hi def link quicktaskTask           Normal
+hi def link quicktaskNote           String
+hi def link quicktaskNoteCont       String
+hi def link quicktaskDone           Constant
+hi def link quicktaskMarker         Todo
+hi def link quicktaskComment        Comment
+hi def link quicktaskSnip           Number
+hi def link quicktaskTimeNote       Comment
+hi def link quicktaskDatestamp      Number
+hi def link quicktaskTimestamp      Number
+hi def link quicktaskConstant       Constant
+hi def link quicktaskIncomplete     Error
+hi def link quicktaskTicket         Special
 
 let b:current_syntax = "quicktask"
 
