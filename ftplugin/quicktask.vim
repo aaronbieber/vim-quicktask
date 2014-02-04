@@ -1056,21 +1056,21 @@ nmap <silent> <Plug>OpenSnipUnderCursor      :call <SID>OpenSnip()<CR>
 
 " Public mappings {{{1
 if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
-    nmap <unique> <Leader>tv  <Plug>SelectTask
-    nmap <unique> <Leader>tD  <Plug>TaskComplete
-    nmap <unique> <Leader>ta  <Plug>ShowActiveTasksOnly
-    nmap <unique> <Leader>tw  <Plug>ShowWatchedTasksOnly
-    nmap <unique> <Leader>ty  <Plug>ShowTodayTasksOnly
-    nmap <unique> <Leader>ts  <Plug>AddNextTimeToTask
-    nmap <unique> <Leader>tO  <Plug>AddTaskAbove
-    nmap <unique> <Leader>to  <Plug>AddTaskBelow
-    nmap <unique> <Leader>tn  <Plug>AddNoteToTask
-    nmap <unique> <Leader>tc  <Plug>AddChildTask
-    nmap <unique> <Leader>tu  <Plug>MoveTaskUp
-    nmap <unique> <Leader>td  <Plug>MoveTaskDown
-    nmap <unique> <Leader>tS  <Plug>AddSnipToTask
-    nmap <unique> <Leader>tfi <Plug>FindIncompleteTimestamps
-    nmap          <CR>        <Plug>OpenSnipUnderCursor
+    nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
+    nmap <unique><buffer> <Leader>tD  <Plug>TaskComplete
+    nmap <unique><buffer> <Leader>ta  <Plug>ShowActiveTasksOnly
+    nmap <unique><buffer> <Leader>tw  <Plug>ShowWatchedTasksOnly
+    nmap <unique><buffer> <Leader>ty  <Plug>ShowTodayTasksOnly
+    nmap <unique><buffer> <Leader>ts  <Plug>AddNextTimeToTask
+    nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
+    nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
+    nmap <unique><buffer> <Leader>tn  <Plug>AddNoteToTask
+    nmap <unique><buffer> <Leader>tc  <Plug>AddChildTask
+    nmap <unique><buffer> <Leader>tu  <Plug>MoveTaskUp
+    nmap <unique><buffer> <Leader>td  <Plug>MoveTaskDown
+    nmap <unique><buffer> <Leader>tS  <Plug>AddSnipToTask
+    nmap <unique><buffer> <Leader>tfi <Plug>FindIncompleteTimestamps
+    nmap <unique><buffer> <CR>        <Plug>OpenSnipUnderCursor
     let b:quicktask_did_mappings = 1
 endif
 
