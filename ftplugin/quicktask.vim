@@ -29,7 +29,10 @@ if exists("b:did_ftplugin")
 endif
 let b:did_ftplugin = 1
 
-let b:undo_ftplugin = 'setlocal comments< formatoptions< spell< wrap< textwidth< expandtab< shiftwidth< tabstop< iskeyword< foldmethod< foldexpr< fillchars< foldtext<'
+if !exists('b:undo_ftplugin')
+  let b:undo_ftplugin = ''
+endif
+let b:undo_ftplugin .= '|setlocal comments< formatoptions< spell< wrap< textwidth< expandtab< shiftwidth< tabstop< iskeyword< foldmethod< foldexpr< fillchars< foldtext<'
 
 " Set all buffer-local settings: {{{1
 setlocal comments=b:#,f:-,f:*
