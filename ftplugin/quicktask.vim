@@ -23,6 +23,14 @@
 let s:cpo_save = &cpo
 set cpo&vim
 
+" Boilerplate for ftplugins. {{{1
+if exists("b:did_ftplugin")
+  finish
+endif
+let b:did_ftplugin = 1
+
+let b:undo_ftplugin = 'setlocal comments< formatoptions< spell< wrap< textwidth< expandtab< shiftwidth< tabstop< iskeyword< foldmethod< foldexpr< fillchars< foldtext<'
+
 " Set all buffer-local settings: {{{1
 setlocal comments=b:#,f:-,f:*
 setlocal formatoptions=qnwta
