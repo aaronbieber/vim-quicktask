@@ -1076,7 +1076,10 @@ endif
 " ============================================================================
 " Autocommands {{{1
 if g:quicktask_autosave
-    autocmd BufLeave,FocusLost * call <SID>SaveOnFocusLost()
+    augroup quicktask
+      au!
+      autocmd BufLeave,FocusLost * call <SID>SaveOnFocusLost()
+    augroup END
 endif
 
 " ============================================================================
