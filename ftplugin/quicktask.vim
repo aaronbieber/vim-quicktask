@@ -1055,7 +1055,7 @@ nmap <silent> <Plug>FindIncompleteTimestamps :call <SID>FindIncompleteTimestamps
 nmap <silent> <Plug>OpenSnipUnderCursor      :call <SID>OpenSnip()<CR>
 
 " Public mappings {{{1
-if ! g:quicktask_no_mappings
+if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
     nmap <unique> <Leader>tv  <Plug>SelectTask
     nmap <unique> <Leader>tD  <Plug>TaskComplete
     nmap <unique> <Leader>ta  <Plug>ShowActiveTasksOnly
@@ -1071,6 +1071,7 @@ if ! g:quicktask_no_mappings
     nmap <unique> <Leader>tS  <Plug>AddSnipToTask
     nmap <unique> <Leader>tfi <Plug>FindIncompleteTimestamps
     nmap          <CR>        <Plug>OpenSnipUnderCursor
+    let b:quicktask_did_mappings = 1
 endif
 
 " ============================================================================
