@@ -27,7 +27,7 @@ let s:version = '1.2'
 "
 " Create a new Quicktask file in a new buffer.
 function! QTInit()
-    if len(expand('%:p')) || &modified
+    if len(expand('%:p')) || &modified || !&modifiable
         execute "new"
     endif
     setlocal filetype=quicktask
