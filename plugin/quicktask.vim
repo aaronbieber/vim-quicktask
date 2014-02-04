@@ -20,7 +20,7 @@
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
 " Set all buffer-local settings: {{{1
-let s:version = '1.2'
+let s:version = '1.4'
 
 " ============================================================================
 " QTInit(): Initialize a new task list. {{{1

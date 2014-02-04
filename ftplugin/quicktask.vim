@@ -46,7 +46,6 @@ setlocal fillchars="fold: "
 setlocal foldtext=QTFoldText()
 
 " Script settings
-let s:version = '1.2'
 let s:one_indent = repeat(" ", &tabstop)
 
 if has('gui_win32')
