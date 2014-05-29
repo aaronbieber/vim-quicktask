@@ -39,17 +39,17 @@ syn match   quicktaskSection        '^.*:\s*$'
 
 syn match   quicktaskTask           '^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip
+                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,quicktaskUsername
 
 syn match   quicktaskNoteCont       /^\s\+[^-*@ ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
                                     \ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
-                                    \ quicktaskIncomplete
+                                    \ quicktaskIncomplete,quicktaskUsername
 
 syn match   quicktaskNote           /^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
                                     \ contains=quicktaskNoteCont,quicktaskMarker,quicktaskTicket,@Spell,
-                                    \ quicktaskConstant, quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
-                                    \ quicktaskSnip, quicktaskIncomplete
+                                    \ quicktaskConstant,quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
+                                    \ quicktaskSnip,quicktaskIncomplete,quicktaskUsername
 
 syn match   quicktaskTimeNote       /^\s\+[@]\s\(Added\|Start\|DONE\).*$/
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
@@ -77,6 +77,9 @@ syn match   quicktaskTicket         display '\C[A-Z]\+-[0-9]\+'
 " The remainder of items are case-insensitive.
 syn case ignore
 
+" Usernames
+syn match   quicktaskUsername       display '\~[a-z.]*[a-z]'
+
 " Snips
 syn match   quicktaskSnip           display '^\s\+[$]\s[A-Za-z0-9-]\+$'
 " '\[\$:\s.\{-}]'
@@ -102,6 +105,7 @@ hi def link quicktaskTimestamp      Number
 hi def link quicktaskConstant       Constant
 hi def link quicktaskIncomplete     Error
 hi def link quicktaskTicket         Special
+hi def link quicktaskUsername       Special
 
 let b:current_syntax = "quicktask"
 
