@@ -1070,6 +1070,7 @@ if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
     nmap <unique><buffer> <Leader>tS  <Plug>AddSnipToTask
     nmap <unique><buffer> <Leader>tfi <Plug>FindIncompleteTimestamps
     nmap <unique><buffer> <CR>        <Plug>OpenSnipUnderCursor
+    command -buffer -nargs=0 QTAddTaskBelow call <SID>AddTaskBelow()
     let b:quicktask_did_mappings = 1
 endif
 
