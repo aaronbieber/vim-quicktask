@@ -53,7 +53,7 @@ setlocal iskeyword=@,@-@,48-57,_,192-255
 " Folding settings
 setlocal foldmethod=expr
 setlocal foldexpr=QTFoldLevel(v:lnum)
-setlocal fillchars="fold: "
+setlocal fillchars+=fold:\ 
 setlocal foldtext=QTFoldText()
 
 " Script settings
