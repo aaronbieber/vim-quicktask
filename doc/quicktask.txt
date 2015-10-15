@@ -167,6 +167,8 @@ mappings are configurable and that configuration is covered in
                 highlighting to be turned on (see |hlsearch|). You can then
                 use "n" and "N" to navigate among the found lines.
 
+:QTAddTaskBelow   A command to ask a new task below - same as <Leader>to .
+
 ===============================================================================
 4. Abbreviations                                *quicktask-abbreviations*
 
