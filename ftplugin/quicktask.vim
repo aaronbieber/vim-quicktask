@@ -569,7 +569,7 @@ function! s:MoveTaskDown()
     else
         call s:FindTaskEnd(1)
         let task_end = line('.')
-        call cursor(task_start)
+        call cursor(task_start, 0)
     endif
 
     " Pull the contents of the task into a list of lines
@@ -619,14 +619,14 @@ function! s:MoveTaskUp()
         " we should not move this task! Display a warning and abort.
         if parent_line > prev_sibling_line
             call s:EchoWarning("You can't move a task out of its parent task; use normal delete/put to move it.")
-            call cursor(task_start)
+            call cursor(task_start, 0)
 
             return
         endif
     endif
 
     " Place the cursor back at the start of the task to be moved.
-    call cursor(task_start)
+    call cursor(task_start, 0)
 
     " Is the preceding line at the same or greater indent?
     if match(getline(task_start-1), '^\s\{'.indent.',}') > -1
