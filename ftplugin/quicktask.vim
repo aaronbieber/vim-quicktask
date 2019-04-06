@@ -323,7 +323,7 @@ function! s:MakeSnipName()
     if !strlen(task_string)
         echo "The task's name is not long enough or couldn't be found."
         let orig_text = input("Enter a name for the snip: ")
-        let task_string = tolower(substitute(orig_text, '[^a-zA-Z]', '-', 'g'))
+        let task_string = tolower(substitute(orig_text, '[^a-zA-Z0-9]', '-', 'g'))
         if strlen(task_string) > 30
             let task_string = matchstr(task_string, '^\(.\{15\}\)')
         endif
