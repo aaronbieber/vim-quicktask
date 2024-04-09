@@ -19,8 +19,82 @@
 " You should have received a copy of the GNU General Public License along with
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
+" Global user configurable variables
+let g:quick_task_file_name     = "todo.txt"
+let g:quick_task_window_height = 15
+
 " Set all buffer-local settings: {{{1
 let s:version = '1.4'
+
+if !exists('quick_task_file_names')
+    let s:quick_task_file_names = []
+endif
+
+" script local variables
+function! s:TaskFileNamesAdd(fn)
+    call filter(s:quick_task_file_names, "v:val !=# '" . a:fn . "'")
+    let s:quick_task_file_names += [a:fn]
+endf
+
+" always 10 chars height window
+function! s:SetBufferFixedSize()
+    if len(tabpagebuflist())
+        exe "resize " . g:quick_task_window_height
+        set winfixheight
+    endif
+endf
+
+" Closes the quicktask window in the current tab
+function! s:QTclose()
+    for l:fn in s:quick_task_file_names
+        let l:bn = bufnr(l:fn)
+        if index(tabpagebuflist(), l:bn) != -1
+            exe "bdelete " . l:bn
+            call filter(s:quick_task_file_names, "v:val !=# '" . l:fn . "'")
+            return
+        endif
+    endfor
+endf
+
+" Open the todo in seperate window
+function! s:QTopen(filename)
+    if len(a:filename)
+        let l:fn = a:filename
+    else
+        let l:fn = g:quick_task_file_name
+    endif
+
+    let l:path = findfile(l:fn, ".;")
+    if !len(l:path)
+        echoerr l:fn . " doesn't exist!"
+        return
+    endif
+
+    let l:buffername = bufname(l:path)
+    let l:buffnumber = bufnr(l:buffername)
+    if !len(l:buffername) || index(tabpagebuflist(), l:buffnumber) == -1
+        exe "split " . l:path
+
+        if &filetype !=# 'quicktask'
+            exe "q"
+            echoerr l:path . " is not a quicktask file!"
+            return
+        endif
+
+        " now that window is created (split), the buffer exists
+        call s:TaskFileNamesAdd(l:path)
+
+        call s:SetBufferFixedSize()
+    endif
+endf
+
+" autocommands
+augroup quicktask-plugin-autocommands
+    au!
+    " if the file that is opened is a quicktask file, add it to the array of
+    " opened quicktask files.
+    autocmd BufWinEnter,FileType quicktask call s:TaskFileNamesAdd(bufname("%"))
+augroup end
 
 " ============================================================================
 " QTInit(): Initialize a new task list. {{{1
@@ -46,3 +120,6 @@ endfunction
 " ============================================================================
 " Commands {{{1
 command! QTInit call QTInit()
+command! QTclose silent call s:QTclose()
+command! -nargs=? QTopen silent call s:QTopen(<q-args>)
+
