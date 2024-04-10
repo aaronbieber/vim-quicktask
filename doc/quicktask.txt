@@ -124,6 +124,10 @@ of their sub-tasks, and so on.
                 Closes all of the previously opened quicktask buffer that were
                 initially opened through |:QTOpen|.
 
+:QTAddTaskBelow
+                A command to ask a new task below - same as <Leader>to (see
+                section |quicktask-mappings||).
+
 ===============================================================================
 4. Mappings                                     *quicktask-mappings*
 
@@ -195,8 +199,6 @@ mappings are configurable and that configuration is covered in
                 visible change to the buffer, though it WILL force search
                 highlighting to be turned on (see |hlsearch|). You can then
                 use "n" and "N" to navigate among the found lines.
-
-:QTAddTaskBelow   A command to ask a new task below - same as <Leader>to .
 
 ===============================================================================
 5. Abbreviations                                *quicktask-abbreviations*
