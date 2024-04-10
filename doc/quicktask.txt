@@ -111,7 +111,7 @@ of their sub-tasks, and so on.
                 |findfile()|). If {filename} is given, the name of the file
                 will be used to search in each directory along the current
                 path up to the root. Otherwise, the file name will be taken
-                from the variable |g:quick_task_file_name|.
+                from the variable |g:quicktask_default_filename|.
 
                 If a file is found and 'ft' is not `quicktask` for this given
                 file, then the search is abandoned and an error is displayed
@@ -292,11 +292,11 @@ To open a snip, place your cursor anywhere on the snip's ID line and press
 ===============================================================================
 8. Options                                      *quicktask-options*
 
-g:quick_task_file_name                          *g:quick_task_file_name*
+g:quicktask_default_filename                    *g:quicktask_default_filename*
     The name of the file to use by default to look for in parent directories.
     By default, "`todo.txt`" is used.
 
-g:quick_task_window_height                      *g:quick_task_window_height*
+g:quicktask_window_height                       *g:quicktask_window_height*
     The height of the window that is created when opening the quick task file
     using |:QTOpen|. Default is `15`.
 

@@ -20,37 +20,37 @@
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
 " Global user configurable variables
-let g:quick_task_file_name     = "todo.txt"
-let g:quick_task_window_height = 15
+let g:quicktask_default_filename = "todo.txt"
+let g:quicktask_window_height    = 15
 
 " Set all buffer-local settings: {{{1
 let s:version = '1.4'
 
-if !exists('quick_task_file_names')
-    let s:quick_task_file_names = []
+if !exists('quicktask_filenames')
+    let s:quicktask_filenames = []
 endif
 
 " script local variables
 function! s:TaskFileNamesAdd(fn)
-    call filter(s:quick_task_file_names, "v:val !=# '" . a:fn . "'")
-    let s:quick_task_file_names += [a:fn]
+    call filter(s:quicktask_filenames, "v:val !=# '" . a:fn . "'")
+    let s:quicktask_filenames += [a:fn]
 endf
 
 " always 10 chars height window
 function! s:SetBufferFixedSize()
     if len(tabpagebuflist())
-        exe "resize " . g:quick_task_window_height
+        exe "resize " . g:quicktask_window_height
         set winfixheight
     endif
 endf
 
 " Closes the quicktask window in the current tab
 function! s:QTclose()
-    for l:fn in s:quick_task_file_names
+    for l:fn in s:quicktask_filenames
         let l:bn = bufnr(l:fn)
         if index(tabpagebuflist(), l:bn) != -1
             exe "bdelete " . l:bn
-            call filter(s:quick_task_file_names, "v:val !=# '" . l:fn . "'")
+            call filter(s:quicktask_filenames, "v:val !=# '" . l:fn . "'")
             return
         endif
     endfor
@@ -61,7 +61,7 @@ function! s:QTopen(filename)
     if len(a:filename)
         let l:fn = a:filename
     else
-        let l:fn = g:quick_task_file_name
+        let l:fn = g:quicktask_default_filename
     endif
 
     let l:path = findfile(l:fn, ".;")
