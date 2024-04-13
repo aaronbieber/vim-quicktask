@@ -293,8 +293,9 @@ To open a snip, place your cursor anywhere on the snip's ID line and press
 8. Options                                      *quicktask-options*
 
 g:quicktask_default_filename                    *g:quicktask_default_filename*
-    The name of the file to use to look for in parent directories. By default,
-    "`todo.txt`" is used.
+    The name of the file to open when no filename is given. The current
+    directory and all parent directories are searched. Unless changed, this
+    value is defaulted to "`todo.txt`".
 
 g:quicktask_window_height                       *g:quicktask_window_height*
     The height of the window that is created when opening the quick task file
