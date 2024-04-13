@@ -13,17 +13,18 @@
               QUICKTASK, THE LIGHTWEIGHT TASK MANAGEMENT PLUGIN
                                  VERSION 1.4
 
-1. Introduction ............................... |quicktask-introduction|
-2. Getting Started ............................ |quicktask-getting-started|
-3. Mappings ................................... |quicktask-mappings|
-4. Abbreviations .............................. |quicktask-abbreviations|
-5. Organizing Tasks ........................... |quicktask-organizing-tasks|
-6. Using Snips ................................ |quicktask-snips|
-7. Options .................................... |quicktask-options|
-8. Advanced Topics ............................ |quicktask-advanced-topics|
-    8.1 Setting the Filetype .................. |quicktask-adv-filetype|
-    8.2 Customizing Mappings .................. |quicktask-adv-mappings|
-9. Known Issues ............................... |quicktask-known-issues|
+1. Introduction ................................ |quicktask-introduction|
+2. Getting Started ............................. |quicktask-getting-started|
+3. Commands .................................... |quicktask-commands|
+4. Mappings .................................... |quicktask-mappings|
+5. Abbreviations ............................... |quicktask-abbreviations|
+6. Organizing Tasks ............................ |quicktask-organizing-tasks|
+7. Using Snips ................................. |quicktask-snips|
+8. Options ..................................... |quicktask-options|
+9. Advanced Topics ............................. |quicktask-advanced-topics|
+    9.1 Setting the Filetype ................... |quicktask-adv-filetype|
+    9.2 Customizing Mappings ................... |quicktask-adv-mappings|
+10. Known Issues ............................... |quicktask-known-issues|
 
 ===============================================================================
 1. Introduction                                 *quicktask-introduction*
@@ -96,7 +97,39 @@ up and down among their peers, expand and collapse tasks to hide or reveal all
 of their sub-tasks, and so on.
 
 ===============================================================================
-3. Mappings                                     *quicktask-mappings*
+3. Commands                                     *quicktask-commands*
+
+:QTInit                                         *:QTInit*
+                Initializes a buffer with a quicktask template ready to be
+                written in a file. If the current buffer is empty and not
+                associated to any file on the disk, the current buffer is
+                used. Otherwise, a new buffer is created in a split window.
+
+:QTOpen [{filename}]                            *:QTOpen*
+                Tries to open an already existing quicktask file in the
+                current directory or any of its parent directory (using
+                |findfile()|). If {filename} is given, the name of the file
+                will be used to search in each directory along the current
+                path up to the root. Otherwise, the file name will be taken
+                from the variable |g:quicktask_default_filename|.
+
+                If a file is found and 'ft' is not `quicktask` for this given
+                file, then the search is abandoned and an error is displayed
+                informing that the file was not a quicktask file.
+
+                If no file is found, then an error is displayed explaining
+                that no file was found.
+
+:QTClose                                        *:QTClose*
+                Closes all of the previously opened quicktask buffer that were
+                initially opened through |:QTOpen|.
+
+:QTAddTaskBelow
+                A command to ask a new task below - same as <Leader>to (see
+                section |quicktask-mappings||).
+
+===============================================================================
+4. Mappings                                     *quicktask-mappings*
 
 Nearly all of Quicktask's functionality is exposed through keyboard shortcuts
 (or "mappings" in Vim parlance). All Quicktask mappings begin with <Leader>t
@@ -167,10 +200,8 @@ mappings are configurable and that configuration is covered in
                 highlighting to be turned on (see |hlsearch|). You can then
                 use "n" and "N" to navigate among the found lines.
 
-:QTAddTaskBelow   A command to ask a new task below - same as <Leader>to .
-
 ===============================================================================
-4. Abbreviations                                *quicktask-abbreviations*
+5. Abbreviations                                *quicktask-abbreviations*
 
 Abbreviations in Vim are used to replace a string with another while entering
 text. Quicktask uses Insert-mode abbreviations to provide an easy way to add
@@ -201,7 +232,7 @@ portable; your mileage may vary, though results should be as expected on
 nearly all modern systems.
 
 ===============================================================================
-5. Organizing Tasks                             *quicktask-organizing-tasks*
+6. Organizing Tasks                             *quicktask-organizing-tasks*
 
 The philosophy of Quicktask is to provide a simple and versatile feature set
 that each user can apply in their own way. Although some of the formatting and
@@ -225,7 +256,7 @@ There is no reason not to create any sections or project groupings you can
 imagine, including nested sections.
 
 ===============================================================================
-6. Using Snips                                  *quicktask-snips*
+7. Using Snips                                  *quicktask-snips*
 
 Snips are a way for you to attach freeform information to task entries.
 Fundamentally snips are text files, but there is no limitation to what
@@ -259,7 +290,16 @@ To open a snip, place your cursor anywhere on the snip's ID line and press
 <CR>. This mapping is customizable, see |quicktask-adv-mappings|.
 
 ===============================================================================
-7. Options                                      *quicktask-options*
+8. Options                                      *quicktask-options*
+
+g:quicktask_default_filename                    *g:quicktask_default_filename*
+    The name of the file to open when no filename is given. The current
+    directory and all parent directories are searched. Unless changed, this
+    value is defaulted to "`todo.txt`".
+
+g:quicktask_window_height                       *g:quicktask_window_height*
+    The height of the window that is created when opening the quick task file
+    using |:QTOpen|. Default is `15`.
 
 g:quicktask_no_mappings                         *g:quicktask_no_mappings*
     Do not create keyboard mappings. This will make Quicktask very tedious and
@@ -307,9 +347,9 @@ g:quicktask_snip_win_split_direction    *g:quicktask_snip_win_split_direction*
     will split horizontally.
 
 ===============================================================================
-8. Advanced Topics                              *quicktask-advanced-topics*
+9. Advanced Topics                              *quicktask-advanced-topics*
 
-8.1 Setting the Filetype                        *quicktask-adv-filetype*
+9.1 Setting the Filetype                        *quicktask-adv-filetype*
 
 Quicktask is a filetype plugin (ftplugin), meaning that it is reliant on the
 filetype of the current file in order to operate. The Quicktask filetype is
@@ -331,7 +371,7 @@ this line to your .vimrc: >
 This tells Vim that when opening a new file or reading in a new buffer, if the
 filename matches *.quicktask, set the filetype to quicktask (see |setf|).
 
-8.2 Customizing Mappings                        *quicktask-adv-mappings*
+9.2 Customizing Mappings                        *quicktask-adv-mappings*
 
 Quicktask exposes its mappings using the <Plug> prefix, which makes them
 impossible to type on your keyboard. Those un-typable mappings are then
@@ -366,7 +406,7 @@ name, or you can look up the keystrokes above in the |quicktask-mappings|
 section of this document.
 
 ===============================================================================
-9. Known Issues                                 *quicktask-known-issues*
+10. Known Issues                                 *quicktask-known-issues*
 
 Quicktask is a labor of love and a side project. As such, there are some
 problems, and I know about most of them. So far, the issues haven't been so
